@@ -21,7 +21,6 @@ from Queue import Queue
 import re
 import os
 import sys
-import time
 import utils
 
 class Tumblr(object):
