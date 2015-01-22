@@ -3,8 +3,6 @@
 
 #### 依赖库
 - requests
-- MySQLdb
-- torndb
 
 #### 功能支持
 - 多线程下载
