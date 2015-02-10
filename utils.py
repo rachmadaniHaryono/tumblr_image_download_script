@@ -11,8 +11,16 @@ import requests
 from mylogger import get_logger
 dllog = get_logger("app")
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+try:
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+except NameError:
+    # The only supported default encodings in Python are:
+
+    #  Python 2.x: ASCII
+    #  Python 3.x: UTF-8
+    # So no need to sys.setdefaultencoding('utf-8')
+    pass # py3
 
 # 执行 requests 的数据下载
 def download_page(url, ret_json=False):
@@ -26,7 +34,10 @@ def download_page(url, ret_json=False):
         if r.status_code == 200:
             if ret_json:
                 return r.json()
-            return r.content
+            # r.text is decoded string
+            # r.content is binary response content(bytes)
+            # see http://docs.python-requests.org/en/latest/user/quickstart/#binary-response-content
+            return r.text
         else:
             dllog.info("下载失败，status_code: %s" % r.status_code)
             return ''

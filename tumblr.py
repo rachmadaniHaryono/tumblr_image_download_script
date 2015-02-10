@@ -17,7 +17,10 @@
     json url like: http://er0.tumblr.com/api/read/json?start=0&num=10
 """
 import threading
-from Queue import Queue
+try:
+    from queue import Queue # py3
+except ImportError:
+    from Queue import Queue # py2
 import re
 import os
 import sys
@@ -115,12 +118,12 @@ class Tumblr(object):
                     try:
                         os.makedirs(self.save_path)
                     except Exception as e:
-                        print e
+                        print(e)
                         sys.exit(1)
                 else:
                     """ 检测有无读写权限 """
                     if not os.access(self.save_path, os.R_OK|os.W_OK):
-                        print "invalid save_path {0}".format(self.save_path)
+                        print("invalid save_path {0}".format(self.save_path))
                         sys.exit(1)
             else:
                 path = os.path.join(os.getcwd(), "imgs/", self.save_path)
