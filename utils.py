@@ -23,14 +23,14 @@ except NameError:
     pass # py3
 
 # 执行 requests 的数据下载
-def download_page(url, ret_json=False):
+def download_page(url, ret_json=False, proxies=None):
     if not url:
-        dllog.info("url 不合法: %s" % url)
+        dllog.info("url should not be None")
         return ''
 
     try:
         dllog.info("当前下载的 url: %s " % url)
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, proxies=proxies, timeout=10)
         if r.status_code == 200:
             if ret_json:
                 return r.json()
@@ -46,10 +46,10 @@ def download_page(url, ret_json=False):
         dllog.info("下载失败, %s %s" % (url, e))
         return ''
 
-def download_imgs(url, path, name):
+def download_imgs(url, path, name, proxies=None):
     try:
         dllog.info("当前下载的 url: %s " % url)
-        r = requests.get(url, stream=True, timeout=10)
+        r = requests.get(url, stream=True, proxies=proxies, timeout=10)
         file = os.path.join(path, name)
         with open(file, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
