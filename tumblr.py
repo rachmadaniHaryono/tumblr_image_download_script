@@ -17,18 +17,21 @@
     json url like: http://er0.tumblr.com/api/read/json?start=0&num=10
 """
 import threading
-from Queue import Queue
+try:
+    from queue import Queue # py3
+except ImportError:
+    from Queue import Queue # py2
 import re
 import os
 import sys
 import utils
 
 class Tumblr(object):
-    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None):
+    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None):
         self.blog = blog
         self.base_url = "http://%s.tumblr.com/api/read/json?start=" % self.blog
-        self.total_post_re = img_re if img_re else re.compile(r'"posts-total":(\d+),')
-        self.img_re = total_post_re if total_post_re else re.compile(r'photo-url-1280":"(http.*?)",')
+        self.total_post_re = total_post_re if total_post_re else re.compile(r'"posts-total":(\d+),')
+        self.img_re = img_re if img_re else re.compile(r'photo-url-1280":"(http.*?)",')
         self.total_posts = 0
         self.max_posts = max_posts
         self.limit_start = limit_start
@@ -38,6 +41,11 @@ class Tumblr(object):
         if self.need_save:
             self.save_path = save_path
             self._check_save_path()
+        else:
+            from mylogger import get_logger
+            self.imglog = get_logger("imgurl")
+
+        self.proxies = proxies
 
         self.img_queue= Queue()
         self.post_queue = Queue()
@@ -59,29 +67,34 @@ class Tumblr(object):
             for i in range(0, self.threads_num):
                 producer[i].start()
 
-            while True:
-                if not self.img_queue.empty():
-                    for i in range(0, self.threads_num):
-                        c = threading.Thread(target=self._download_imgs)
-                        consumer.append(c)
+            if self.need_save:
+                while True:
+                    if not self.img_queue.empty():
+                        for i in range(0, self.threads_num):
+                            c = threading.Thread(target=self._download_imgs)
+                            consumer.append(c)
 
-                    for i in range(0, self.threads_num):
-                        consumer[i].start()
-                    break
-                else:
-                    #print self.__str__()
-                    continue
+                        for i in range(0, self.threads_num):
+                            consumer[i].start()
+                        break
+                    else:
+                        #print self.__str__()
+                        continue
 
     def _get_img_urls(self):
         while not self.post_queue.empty():
             limit_start = self.post_queue.get()
             url = self.base_url + str(limit_start) + "&num=" + str(self.num)
-            data = utils.download_page(url)
+            data = utils.download_page(url, proxies=self.proxies)
             if data:
                 imgs = self.img_re.findall(data)
                 for img in imgs:
                     img = img.replace('\\', '')
-                    self.img_queue.put(img)
+
+                    if not self.need_save:
+                        self.imglog.info("%s" % img)
+                    else:
+                        self.img_queue.put(img)
 
     def _download_imgs(self):
         if self.need_save:
@@ -89,7 +102,7 @@ class Tumblr(object):
                 #print self.__str__()
                 img_url = self.img_queue.get()
                 img_name = img_url.split('/')[-1]
-                utils.download_imgs(img_url, self.save_path, img_name)
+                utils.download_imgs(img_url, self.save_path, img_name, self.proxies)
 
     def _get_total_posts(self):
         url = self.base_url + "0&num=1"
@@ -115,12 +128,12 @@ class Tumblr(object):
                     try:
                         os.makedirs(self.save_path)
                     except Exception as e:
-                        print e
+                        print(e)
                         sys.exit(1)
                 else:
                     """ 检测有无读写权限 """
                     if not os.access(self.save_path, os.R_OK|os.W_OK):
-                        print "invalid save_path {0}".format(self.save_path)
+                        print("invalid save_path {0}".format(self.save_path))
                         sys.exit(1)
             else:
                 path = os.path.join(os.getcwd(), "imgs/", self.save_path)
@@ -137,7 +150,8 @@ class Tumblr(object):
 
 
 def test():
-    dl = Tumblr("jpgirls")
+    proxies = {"http": "http://127.0.0.1:13456"}
+    dl = Tumblr("er0", need_save=False, proxies=proxies)
     dl.run()
 
 if __name__ == "__main__":
