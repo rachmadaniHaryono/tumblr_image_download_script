@@ -28,11 +28,11 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50
                 try:
                     os.makedirs(path)
                 except OSError as e:
-                    print e
+                    print(e)
                     sys.exit(1)
             else:
                 if not os.access(path, os.R_OK|os.W_OK):
-                    print path, "without read/write permission"
+                    print(path, "without read/write permission")
                     sys.exit(1)
         else:
             """ create new log file path, pwd+path """

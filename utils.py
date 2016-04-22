@@ -51,9 +51,13 @@ def download_imgs(url, path, name, proxies=None):
         dllog.info("当前下载的 url: %s " % url)
         r = requests.get(url, stream=True, proxies=proxies, timeout=10)
         file = os.path.join(path, name)
+        if os.path.isfile(file):
+            print("Skipping: " + file)
+            return
         with open(file, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 f.write(chunk)
+        print("Downloading: " + file)
     except Exception as e:
         dllog.info("下载失败, %s %s" % (url, e))
 

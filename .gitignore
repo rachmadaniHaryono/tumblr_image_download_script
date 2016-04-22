@@ -3,3 +3,5 @@
 *.st
 /logs/
 /imgs/
+/requests/
+blogs.txt
