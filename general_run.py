@@ -16,6 +16,7 @@ def readblogs(filename):
             # remove url junk
             user = re.sub(r"\.tumblr\.com/?.+", "", user)
             user = re.sub(r"http://", "", user)
+            user = re.sub(r"www\.", "", user)
             blogs.append(Tumblr(user))
         else:
             count += 1
