@@ -10,16 +10,19 @@ def readblogs(filename):
     count = 0
     print("Reading blogs.txt...")
     for user in f:
-        if not user[0] == '#':
-            # remove txt formatting junk
-            user = user.strip()
-            # remove url junk
-            user = re.sub(r"\.tumblr\.com/?.+", "", user)
-            user = re.sub(r"http://", "", user)
-            user = re.sub(r"www\.", "", user)
-            blogs.append(Tumblr(user))
-        else:
-            count += 1
+        if not len(user) < 2:
+            if user[0] == '#':
+                pass
+            elif (user[0]+user[1]) == "--":
+                count += 1
+            else:
+                # remove txt formatting junk
+                user = user.strip()
+                # remove url junk
+                user = re.sub(r"\.tumblr\.com/?.+", "", user)
+                user = re.sub(r"http://", "", user)
+                user = re.sub(r"www\.", "", user)
+                blogs.append(Tumblr(user))
     if count > 0:
         print("Skipped " + str(count) + " lines/users in blogs.txt\n")
     return blogs
@@ -27,16 +30,19 @@ def readblogs(filename):
 
 def run():
     blogs = readblogs('blogs.txt')
-    print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
-    for user in blogs:
-        print(user.blog)
-    print("█████████████")
-    if input("\nEnter \"y\" to proceed\n") == 'y':
-        print("Running..\n")
-        for blog in blogs:
-            blog.run()
+    if len(blogs) == 0:
+        print("No blogs found in blogs.txt")
     else:
-        print("\nQuitting - No files will be downloaded")
+        print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
+        for user in blogs:
+            print(user.blog)
+        print("█████████████")
+        if input("\nEnter \"y\" to proceed\n") == 'y':
+            print("Running..\n")
+            for blog in blogs:
+                blog.run()
+        else:
+            print("\nQuitting - No files will be downloaded")
 
 
 if __name__ == "__main__":
