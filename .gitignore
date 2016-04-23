@@ -5,3 +5,7 @@
 /imgs/
 /requests/
 blogs.txt
+.idea/
+*.xml
+*.iml
+tester.py

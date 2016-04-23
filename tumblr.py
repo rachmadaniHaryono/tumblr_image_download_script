@@ -12,6 +12,7 @@
 # LastChange:   2015-01-22 17:26:08
 #=============================================================================
 '''
+
 """
     download imgs from tumblr.
     json url like: http://er0.tumblr.com/api/read/json?start=0&num=10
@@ -25,6 +26,7 @@ import re
 import os
 import sys
 import utils
+
 
 class Tumblr(object):
     def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None):
@@ -78,7 +80,7 @@ class Tumblr(object):
                             consumer[i].start()
                         break
                     else:
-                        #print self.__str__()
+                        # print self.__str__()
                         continue
 
     def _get_img_urls(self):
@@ -99,7 +101,7 @@ class Tumblr(object):
     def _download_imgs(self):
         if self.need_save:
             while not all((self.img_queue.empty(), self.post_queue.empty())):
-                #print self.__str__()
+                # print self.__str__()
                 img_url = self.img_queue.get()
                 img_name = img_url.split('/')[-1]
                 utils.download_imgs(img_url, self.save_path, img_name, self.proxies)
