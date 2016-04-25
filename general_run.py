@@ -48,6 +48,7 @@ def run():
             else:
                 print("Running..")
                 for blog in blogs:
+                    blog.run(timout=25)
                 print("\n--Downloading started--\n")
         else:
             print("\nQuitting - No files will be downloaded")

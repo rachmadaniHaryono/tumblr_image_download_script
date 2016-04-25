@@ -54,6 +54,7 @@ class Tumblr(object):
         self.post_queue = Queue()
         self.threads_num = threads_num
 
+    def run(self, use_threading=True, stream=True, timeout=10):
         self.stream = stream
         self.timeout = timeout
         if use_threading:

@@ -48,6 +48,7 @@ def download_page(url, ret_json=False, proxies=None):
         return ''
 
 
+def download_imgs(url, path, name, proxies=None, stream=True, timeout=10):
     try:
         dllog.info("当前下载的(Current Download) url: %s " % url)
         r = requests.get(url, stream=stream, proxies=proxies, timeout=timeout)
