@@ -29,7 +29,7 @@ import utils
 
 
 class Tumblr(object):
-    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None):
+    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True, timeout=10):
         self.blog = blog
         self.base_url = "http://%s.tumblr.com/api/read/json?start=" % self.blog
         self.total_post_re = total_post_re if total_post_re else re.compile(r'"posts-total":(\d+),')
@@ -38,8 +38,9 @@ class Tumblr(object):
         self.max_posts = max_posts
         self.limit_start = limit_start
         self.num = num
-
         self.need_save = need_save
+        self.stream = stream
+        self.timeout = timeout
         if self.need_save:
             self.save_path = save_path
             self._check_save_path()
@@ -49,12 +50,28 @@ class Tumblr(object):
 
         self.proxies = proxies
 
-        self.img_queue= Queue()
+        self.img_queue = Queue()
         self.post_queue = Queue()
         self.threads_num = threads_num
 
-    def run(self):
-        self.get_imgs_using_threading()
+        self.stream = stream
+        self.timeout = timeout
+        if use_threading:
+            print("Using Threads...\n")
+            self.get_imgs_using_threading()
+        else:
+            print("Not Using Threads...\n")
+            self.get_imgs()
+
+    def get_imgs(self):
+
+        if not self.total_posts:
+            self._get_total_posts()
+        if self.total_posts:
+            self._get_img_urls()
+            if self.need_save:
+                if not self.img_queue.empty():
+                        self._download_imgs()
 
     def get_imgs_using_threading(self):
         if not self.total_posts:
@@ -80,8 +97,13 @@ class Tumblr(object):
                             consumer[i].start()
                         break
                     else:
-                        # print self.__str__()
-                        continue
+                        break
+
+    def _check_already_exists(self, name):
+        if os.path.isfile(os.path.join(self.save_path, name)):
+            return True
+        else:
+            return False
 
     def _get_img_urls(self):
         while not self.post_queue.empty():
@@ -92,11 +114,15 @@ class Tumblr(object):
                 imgs = self.img_re.findall(data)
                 for img in imgs:
                     img = img.replace('\\', '')
-
+                    filename = str(img.split('/')[-1])
                     if not self.need_save:
                         self.imglog.info("%s" % img)
                     else:
-                        self.img_queue.put(img)
+                        if self._check_already_exists(filename):
+                            print("Skipping:\t" + filename)
+                        else:
+                            print("Queued:\t" + filename)
+                            self.img_queue.put(img)
 
     def _download_imgs(self):
         if self.need_save:
@@ -104,7 +130,7 @@ class Tumblr(object):
                 # print self.__str__()
                 img_url = self.img_queue.get()
                 img_name = img_url.split('/')[-1]
-                utils.download_imgs(img_url, self.save_path, img_name, self.proxies)
+                utils.download_imgs(img_url, self.save_path, img_name, self.proxies, stream=False, timeout=None)
 
     def _get_total_posts(self):
         url = self.base_url + "0&num=1"

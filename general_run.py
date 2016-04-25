@@ -2,6 +2,7 @@
 # -*-coding:utf-8-*-
 from tumblr import Tumblr
 import re
+import time
 
 
 def readblogs(filename):
@@ -37,10 +38,17 @@ def run():
         for user in blogs:
             print(user.blog)
         print("█████████████")
-        if input("\nEnter \"y\" to proceed\n") == 'y':
-            print("Running..\n")
-            for blog in blogs:
-                blog.run()
+        if input("Proceed? (y/n)\n") == 'y':
+            if input("Use safe mode (slower, recommended) (y/n)") == 'y':
+                start = time.time()
+                for blog in blogs:
+                    blog.run(use_threading=False, stream=False, timeout=None)
+                end = time.time()
+                print("\n--Downloading Finished--\nTime Elapsed: " + str(round((end - start))) + "s")
+            else:
+                print("Running..")
+                for blog in blogs:
+                print("\n--Downloading started--\n")
         else:
             print("\nQuitting - No files will be downloaded")
 

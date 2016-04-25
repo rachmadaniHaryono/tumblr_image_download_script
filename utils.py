@@ -7,9 +7,10 @@
 import sys
 import os
 import requests
+import time
 
 from mylogger import get_logger
-dllog = get_logger("app")
+dllog = get_logger(time.strftime("%d-%m-%Y+%H-%M-%S"))
 
 try:
     reload(sys)
@@ -30,7 +31,7 @@ def download_page(url, ret_json=False, proxies=None):
         return ''
 
     try:
-        dllog.info("当前下载的 url: %s " % url)
+        dllog.info("当前下载的(Current Download) url: %s " % url)
         r = requests.get(url, proxies=proxies, timeout=10)
         if r.status_code == 200:
             if ret_json:
@@ -40,28 +41,23 @@ def download_page(url, ret_json=False, proxies=None):
             # see http://docs.python-requests.org/en/latest/user/quickstart/#binary-response-content
             return r.text
         else:
-            dllog.info("下载失败，status_code: %s" % r.status_code)
+            dllog.info("下载失败(Download Failed)，status_code: %s" % r.status_code)
             return ''
-
     except Exception as e:
-        dllog.info("下载失败, %s %s" % (url, e))
+        dllog.info("下载失败 Download Failed), %s %s" % (url, e))
         return ''
 
 
-def download_imgs(url, path, name, proxies=None):
     try:
-        dllog.info("当前下载的 url: %s " % url)
-        r = requests.get(url, stream=True, proxies=proxies, timeout=10)
+        dllog.info("当前下载的(Current Download) url: %s " % url)
+        r = requests.get(url, stream=stream, proxies=proxies, timeout=timeout)
         file = os.path.join(path, name)
-        if os.path.isfile(file):
-            print("Skipping - File already exists:" + name)
-            return
+        print("Downloading:\t" + name)
         with open(file, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 f.write(chunk)
-        print("Downloading: " + name)
     except Exception as e:
-        dllog.info("下载失败, %s %s" % (url, e))
+        dllog.info("下载失败(Download Failed), %s %s" % (url, e))
 
 
 def test():
