@@ -58,10 +58,10 @@ class Tumblr(object):
         self.stream = stream
         self.timeout = timeout
         if use_threading:
-            print("Using Threads...\n")
+            print("Started blog rip using Threads...\n")
             self.get_imgs_using_threading()
         else:
-            print("Not Using Threads...\n")
+            print("Started blog rip not using Threads...\n")
             self.get_imgs()
 
     def get_imgs(self):
@@ -86,6 +86,8 @@ class Tumblr(object):
 
             for i in range(0, self.threads_num):
                 producer[i].start()
+            for i in range(0, self.threads_num):
+                producer[i].join()
 
             if self.need_save:
                 while True:

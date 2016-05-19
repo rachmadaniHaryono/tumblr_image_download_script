@@ -3,13 +3,18 @@
 from tumblr import Tumblr
 import re
 import time
+import argparse
+import sys
 
 
 def readblogs(filename):
-    f = open(filename, 'r')
     blogs = []
     count = 0
-    print("Reading blogs.txt...")
+    try:
+        f = open(filename, 'r')
+    except FileNotFoundError:
+        return blogs
+    print("Reading " + filename + "...")
     for user in f:
         if not len(user) < 2:
             if user[0] == '#':
@@ -25,35 +30,67 @@ def readblogs(filename):
                 user = re.sub(r"www\.", "", user)
                 blogs.append(Tumblr(user))
     if count > 0:
-        print("Skipped " + str(count) + " lines/users in blogs.txt\n")
+        print("Skipped " + str(count) + " lines/users in " + filename + "\n")
     return blogs
 
 
-def run():
-    blogs = readblogs('blogs.txt')
+def run(noinfo, stream, threading, timeout, filename):
+    # print("\ninfo: " + str(info))
+    # print("\nstream: " + str(stream))
+    # print("\nthreading: " + str(threading))
+    # print("\ntimeout: " + str(timeout))
+    # print("\nfilename: " + str(filename))
+    blogs = readblogs(filename)
     if len(blogs) == 0:
-        print("No blogs found in blogs.txt")
+        print("No blogs found in " + filename + ".\n")
+        if noinfo:
+            sys.exit(0)
+        if input("Would you like to generate an example file called example.txt? (y/n)\n") == 'y':
+            example = open('example.txt', 'w')
+            example.write("#This line is a comment")
+            example.write("\n#Use -- to skip blogs:")
+            example.write("\n--http://inactive-artist.tumblr.com/")
+            example.write("\n\n#Blogs can be listed in Username format or URL format")
+            example.write("\n\n#Username Format")
+            example.write("\nlazy-artist")
+            example.write("\n\n#URL Format")
+            example.write("\nhttp://cool-artist.tumblr.com/")
+            example.write("\n\n#If used, this file will try to download from "
+                          "\"cool-artist\" and \"lazy-artist\" but not \"inactive-artist\"")
     else:
-        print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
-        for user in blogs:
-            print(user.blog)
-        print("█████████████")
-        if input("Proceed? (y/n)\n") == 'y':
-            if input("Use safe mode (slower, recommended) (y/n)") == 'y':
-                start = time.time()
-                for blog in blogs:
-                    blog.run(use_threading=False, stream=False, timeout=None)
-                end = time.time()
-                print("\n--Downloading Finished--\nTime Elapsed: " + str(round((end - start))) + "s")
-            else:
-                print("Running..")
-                for blog in blogs:
-                    blog.run(timout=25)
-                print("\n--Downloading started--\n")
-        else:
-            print("\nQuitting - No files will be downloaded")
-
+        if not noinfo:
+            print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
+            for user in blogs:
+                print(user.blog)
+            print("█████████████")
+            print("With the following settings:")
+            print("stream: " + str(stream))
+            print("threading: " + str(threading))
+            print("timeout: " + str(timeout))
+            print("█████████████")
+            if input("Proceed? (y/n)\n") != 'y':
+                print("Quitting - No files will be downloaded")
+                sys.exit(0)
+        print("Running...\n")
+        if not threading:
+            start = time.time()
+        for blog in blogs:
+            blog.run(use_threading=threading, stream=stream, timeout=timeout)
+        if not threading:
+            end = time.time()
+            print("\n--Downloading Finished--\nTime Elapsed: " + str(round((end - start))) + "s")
 
 if __name__ == "__main__":
-    run()
-
+    parser = argparse.ArgumentParser(description="Downloads all images from blogs specified in blogs.txt. "
+                                                 "Blogs can be formatted as a username: \"username\" "
+                                                 "or in URL form: \"http://username.tumblr.com/*\". "
+                                                 "Blogs may be skipped by starting the line with --. "
+                                                 "Lines starting with # are comments.")
+    parser.add_argument('-i', '--noinfo', action='store_true', help="Doesn't show blog list or ask for confirmation")
+    parser.add_argument('-s', '--stream', action='store_true', help="Files downloaded are streamed")
+    parser.add_argument('-t', '--threading', action='store_true', help="Download using threading")
+    parser.add_argument('-n', '--timeout', help="Specify download timeout in seconds (Default is none)")
+    parser.add_argument('-f', '--filename', default="blogs.txt", help="Specify alternate filename for blogs.txt")
+    args = parser.parse_args()
+    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename)
+    sys.exit(0)
