@@ -1,4 +1,8 @@
 ## Tumblr Image Download Script
+
+#### Description
+This is a fork of leyle's tumblr_imgs_download that allows for a list of blogs to be specified in a text file as well as command line options for toggling threading and other features. It downloads all images posted or reblogged by the users specified in blogs.txt (or the specified file).
+
 #### Features
 - List Multiple Blogs in text file (no need to edit code)
 - Optional Multi-Threaded Downloading
@@ -22,9 +26,10 @@
 ```
 
 ##### blogs.txt
+By default the script will search for a file called blogs.txt in the folder which lists out all blogs to be downloaded from. The format for this file is as follows:
 - # used for comments
-- -- used for skip blog
-- List blogs as 
+- -- used to skip blog
+- List blogs one per line as 
   - Username (secondary domain) "lazy-artist"
   - URL "http://cool-artist.tumblr.com/"
   - Any other URL form "http://www.cool-artist.tumblr.com/post/cool-art-post.html" or "cool-artist.tumblr.com/post/cool-art-post.html"
