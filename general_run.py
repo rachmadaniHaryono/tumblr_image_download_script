@@ -24,17 +24,25 @@ def readblogs(filename):
             else:
                 # remove txt formatting junk
                 user = user.strip()
+                # get tags
+                tags = user.split(';;')
+                if len(tags) > 1:
+                    tags = tags[1]
+                    tags = tags.split(',')
+                else:
+                    tags = None
+                print(tags)
                 # remove url junk
                 user = re.sub(r"\.tumblr\.com/?.+", "", user)
                 user = re.sub(r"http://", "", user)
                 user = re.sub(r"www\.", "", user)
-                blogs.append(Tumblr(user))
+                blogs.append(Tumblr(user, tags=tags))
     if count > 0:
         print("Skipped " + str(count) + " lines/users in " + filename + "\n")
     return blogs
 
 
-def run(noinfo, stream, threading, timeout, filename):
+def run(noinfo, stream, threading, timeout, filename, proxy):
     # print("\ninfo: " + str(info))
     # print("\nstream: " + str(stream))
     # print("\nthreading: " + str(threading))
@@ -72,10 +80,9 @@ def run(noinfo, stream, threading, timeout, filename):
                 print("Quitting - No files will be downloaded")
                 sys.exit(0)
         print("Running...\n")
-        if not threading:
-            start = time.time()
+        start = time.time()
         for blog in blogs:
-            blog.run(use_threading=threading, stream=stream, timeout=timeout)
+            blog.run(use_threading=threading, stream=stream, timeout=timeout, proxies=proxy)
         if not threading:
             end = time.time()
             print("\n--Downloading Finished--\nTime Elapsed: " + str(round((end - start))) + "s")
@@ -91,6 +98,12 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--threading', action='store_true', help="Download using threading")
     parser.add_argument('-n', '--timeout', help="Specify download timeout in seconds (Default is none)")
     parser.add_argument('-f', '--filename', default="blogs.txt", help="Specify alternate filename for blogs.txt")
+    parser.add_argument('-p', '--proxy', default=None, help="Specify proxy in the form \'protocol://host:port\'")
     args = parser.parse_args()
-    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename)
+    if args.proxy is not None:
+        proxies = {args.proxy.split(':')[0]: args.proxy}
+    else:
+        proxies = None
+    print(str(proxies))
+    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies)
     sys.exit(0)

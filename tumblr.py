@@ -29,10 +29,12 @@ import utils
 
 
 class Tumblr(object):
-    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True, timeout=10):
+    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True, timeout=10, tags=None):
         self.blog = blog
+        self.tags = tags
+        self.tag = ''
         self.base_url = "http://%s.tumblr.com/api/read/json?start=" % self.blog
-        self.total_post_re = total_post_re if total_post_re else re.compile(r'"posts-total":(\d+),')
+        self.total_post_re = total_post_re if total_post_re else re.compile(r'"posts-total":"*(\d+)"*,')
         self.img_re = img_re if img_re else re.compile(r'photo-url-1280":"(http.*?)",')
         self.total_posts = 0
         self.max_posts = max_posts
@@ -54,7 +56,8 @@ class Tumblr(object):
         self.post_queue = Queue()
         self.threads_num = threads_num
 
-    def run(self, use_threading=True, stream=True, timeout=10):
+    def run(self, use_threading=True, stream=True, timeout=10, proxies=None):
+        self.proxies = proxies
         self.stream = stream
         self.timeout = timeout
         if use_threading:
@@ -65,42 +68,48 @@ class Tumblr(object):
             self.get_imgs()
 
     def get_imgs(self):
-
-        if not self.total_posts:
-            self._get_total_posts()
-        if self.total_posts:
-            self._get_img_urls()
-            if self.need_save:
-                if not self.img_queue.empty():
-                        self._download_imgs()
+        for tag in self.tags:
+            self.tag = tag
+            print("Tag: " + self.tag)
+            if not self.total_posts:
+                self._get_total_posts()
+            if self.total_posts:
+                self._get_img_urls()
+            self.total_posts = 0
+        if self.need_save:
+            if not self.img_queue.empty():
+                    self._download_imgs()
 
     def get_imgs_using_threading(self):
-        if not self.total_posts:
-            self._get_total_posts()
-        if self.total_posts:
-            producer = []
-            consumer = []
-            for i in range(0, self.threads_num):
-                p = threading.Thread(target=self._get_img_urls)
-                producer.append(p)
+        consumer = []
+        for tag in self.tags:
+            self.tag = tag
+            print("Tag: " +self.tag)
+            if not self.total_posts:
+                self._get_total_posts()
+            if self.total_posts:
+                producer = []
+                for i in range(0, self.threads_num):
+                    p = threading.Thread(target=self._get_img_urls)
+                    producer.append(p)
+                for i in range(0, self.threads_num):
+                    producer[i].start()
+                for i in range(0, self.threads_num):
+                    producer[i].join()
+            self.total_posts = 0
 
-            for i in range(0, self.threads_num):
-                producer[i].start()
-            for i in range(0, self.threads_num):
-                producer[i].join()
+        if self.need_save:
+            while True:
+                if not self.img_queue.empty():
+                    for i in range(0, self.threads_num):
+                        c = threading.Thread(target=self._download_imgs)
+                        consumer.append(c)
 
-            if self.need_save:
-                while True:
-                    if not self.img_queue.empty():
-                        for i in range(0, self.threads_num):
-                            c = threading.Thread(target=self._download_imgs)
-                            consumer.append(c)
-
-                        for i in range(0, self.threads_num):
-                            consumer[i].start()
-                        break
-                    else:
-                        break
+                    for i in range(0, self.threads_num):
+                        consumer[i].start()
+                    break
+                else:
+                    break
 
     def _check_already_exists(self, name):
         if os.path.isfile(os.path.join(self.save_path, name)):
@@ -111,7 +120,7 @@ class Tumblr(object):
     def _get_img_urls(self):
         while not self.post_queue.empty():
             limit_start = self.post_queue.get()
-            url = self.base_url + str(limit_start) + "&num=" + str(self.num)
+            url = self.base_url + str(limit_start) + "&num=" + str(self.num) + "&tagged=" + self.tag
             data = utils.download_page(url, proxies=self.proxies)
             if data:
                 imgs = self.img_re.findall(data)
@@ -133,10 +142,11 @@ class Tumblr(object):
                 # print self.__str__()
                 img_url = self.img_queue.get()
                 img_name = img_url.split('/')[-1]
-                utils.download_imgs(img_url, self.save_path, img_name, self.proxies, stream=False, timeout=None)
+                if not (self.tags and os.path.exists(os.path.join(self.save_path, img_name))):
+                    utils.download_imgs(img_url, self.save_path, img_name, self.proxies, stream=self.stream, timeout=self.timeout)
 
     def _get_total_posts(self):
-        url = self.base_url + "0&num=1"
+        url = self.base_url + "0&num=1&tagged=" + self.tag
         data = utils.download_page(url)
         if data:
             self.total_posts = int(self.total_post_re.findall(data)[0])
