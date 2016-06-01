@@ -29,7 +29,7 @@ import utils
 
 
 class Tumblr(object):
-    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True, timeout=10, tags=None):
+    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True, timeout=10, tags=['']):
         self.blog = blog
         self.tags = tags
         self.tag = ''

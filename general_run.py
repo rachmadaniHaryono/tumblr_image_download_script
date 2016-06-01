@@ -30,7 +30,7 @@ def readblogs(filename):
                     tags = tags[1]
                     tags = tags.split(',')
                 else:
-                    tags = None
+                    tags = ['']
                 print(tags)
                 # remove url junk
                 user = re.sub(r"\.tumblr\.com/?.+", "", user)
