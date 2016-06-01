@@ -63,8 +63,13 @@ def run(noinfo, stream, threading, timeout, filename, proxy):
             example.write("\nlazy-artist")
             example.write("\n\n#URL Format")
             example.write("\nhttp://cool-artist.tumblr.com/")
+            example.write("\n#TAG Format")
+            example.write("http://reblogging-artist.tumblr.com/;;original-post,cute")
             example.write("\n\n#If used, this file will try to download from "
-                          "\"cool-artist\" and \"lazy-artist\" but not \"inactive-artist\"")
+                          "\"cool-artist\", \"lazy-artist\" and \"reblogging-artist\" but not \"inactive-artist\"")
+            example.write("#From \"reblogging-artist\", it will only download posts tagged \"original-post\" "
+                          "or \"cute\" (Helpful for filtering out blogs that reblog a lot "
+                          "but have a tag for their original content")
     else:
         if not noinfo:
             print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
