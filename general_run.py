@@ -31,11 +31,12 @@ def readblogs(filename):
                     tags = tags.split(',')
                 else:
                     tags = ['']
-                print(tags)
+                #print(tags)
                 # remove url junk
                 user = re.sub(r"\.tumblr\.com/?.+", "", user)
                 user = re.sub(r"http://", "", user)
                 user = re.sub(r"www\.", "", user)
+                user = re.sub(r";;.+", "", user)
                 blogs.append(Tumblr(user, tags=tags))
     if count > 0:
         print("Skipped " + str(count) + " lines/users in " + filename + "\n")
