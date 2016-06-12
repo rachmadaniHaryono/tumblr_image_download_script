@@ -34,7 +34,7 @@ def readblogs(filename):
                 #print(tags)
                 # remove url junk
                 user = re.sub(r"\.tumblr\.com/?.+", "", user)
-                user = re.sub(r"http://", "", user)
+                user = re.sub(r"https?://", "", user)
                 user = re.sub(r"www\.", "", user)
                 user = re.sub(r";;.+", "", user)
                 blogs.append(Tumblr(user, tags=tags))
