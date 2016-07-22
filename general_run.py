@@ -94,11 +94,13 @@ def run(noinfo, stream, threading, timeout, filename, proxy):
             print("\n--Downloading Finished--\nTime Elapsed: " + str(round((end - start))) + "s")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Downloads all images from blogs specified in blogs.txt. "
-                                                 "Blogs can be formatted as a username: \"username\" "
-                                                 "or in URL form: \"http://username.tumblr.com/*\". "
-                                                 "Blogs may be skipped by starting the line with --. "
-                                                 "Lines starting with # are comments.")
+    parser = argparse.ArgumentParser(description=(
+        "Downloads all images from blogs specified in blogs.txt. "
+        "Blogs can be formatted as a username: \"username\" "
+        "or in URL form: \"http://username.tumblr.com/*\". "
+        "Blogs may be skipped by starting the line with --. "
+        "Lines starting with # are comments.")
+    )
     parser.add_argument('-i', '--noinfo', action='store_true', help="Doesn't show blog list or ask for confirmation")
     parser.add_argument('-s', '--stream', action='store_true', help="Files downloaded are streamed")
     parser.add_argument('-t', '--threading', action='store_true', help="Download using threading")

@@ -29,7 +29,9 @@ import utils
 
 
 class Tumblr(object):
-    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None, img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True, timeout=10, tags=['']):
+    def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None,
+                 img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True,
+                 timeout=10, tags=['']):
         self.blog = blog
         self.tags = tags
         self.tag = ''
@@ -51,12 +53,12 @@ class Tumblr(object):
             self.imglog = get_logger("imgurl")
 
         self.proxies = proxies
-
         self.img_queue = Queue()
         self.post_queue = Queue()
         self.threads_num = threads_num
 
     def run(self, use_threading=True, stream=True, timeout=10, proxies=None):
+        """Run the downloader.  """
         self.proxies = proxies
         self.stream = stream
         self.timeout = timeout
