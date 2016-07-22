@@ -42,6 +42,8 @@ class Tumblr(object):
         self.max_posts = max_posts
         self.limit_start = limit_start
         self.num = num
+        # limit image
+        self.limit_image = None
         self.need_save = need_save
         self.stream = stream
         self.timeout = timeout
@@ -57,8 +59,14 @@ class Tumblr(object):
         self.post_queue = Queue()
         self.threads_num = threads_num
 
-    def run(self, use_threading=True, stream=True, timeout=10, proxies=None):
-        """Run the downloader.  """
+    def run(self, use_threading=True, stream=True, timeout=10, proxies=None, image_limit=None):
+        """Run the downloader.
+
+        :param image_limit: limit the download image.
+        """
+        # limit the Queue size
+        if image_limit is not None:
+            self.image_limit = image_limit
         self.proxies = proxies
         self.stream = stream
         self.timeout = timeout
@@ -120,6 +128,8 @@ class Tumblr(object):
             return False
 
     def _get_img_urls(self):
+        # counter for image_limit check
+        image_counter = 0
         while not self.post_queue.empty():
             limit_start = self.post_queue.get()
             url = self.base_url + str(limit_start) + "&num=" + str(self.num) + "&tagged=" + self.tag
@@ -134,9 +144,12 @@ class Tumblr(object):
                     else:
                         if self._check_already_exists(filename):
                             print("Skipping:\t" + filename)
+                        elif self.image_limit <= image_counter and self.image_limit:
+                            print("Hit limit, skipping;\t" + filename)
                         else:
                             print("Queued:\t" + filename)
                             self.img_queue.put(img)
+                            image_counter += 1
 
     def _download_imgs(self):
         if self.need_save:
