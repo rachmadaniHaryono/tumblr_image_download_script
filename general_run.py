@@ -43,7 +43,10 @@ def readblogs(filename):
     return blogs
 
 
-def run(noinfo, stream, threading, timeout, filename, proxy):
+def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
+    """run the program.
+
+    :param image_limit: limit the downloaded image."""
     # print("\ninfo: " + str(info))
     # print("\nstream: " + str(stream))
     # print("\nthreading: " + str(threading))
@@ -88,7 +91,8 @@ def run(noinfo, stream, threading, timeout, filename, proxy):
         print("Running...\n")
         start = time.time()
         for blog in blogs:
-            blog.run(use_threading=threading, stream=stream, timeout=timeout, proxies=proxy)
+            blog.run(use_threading=threading, stream=stream, timeout=timeout, proxies=proxy,
+                     image_limit=image_limit)
         if not threading:
             end = time.time()
             print("\n--Downloading Finished--\nTime Elapsed: " + str(round((end - start))) + "s")
@@ -105,11 +109,20 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--timeout', help="Specify download timeout in seconds (Default is none)")
     parser.add_argument('-f', '--filename', default="blogs.txt", help="Specify alternate filename for blogs.txt")
     parser.add_argument('-p', '--proxy', default=None, help="Specify proxy in the form \'protocol://host:port\'")
+    parser.add_argument('-l', '--limit', default=None, help="Limit the download image.")
     args = parser.parse_args()
     if args.proxy is not None:
         proxies = {args.proxy.split(':')[0]: args.proxy}
     else:
         proxies = None
+
+    # clean args.limit input
+    if args.limit:
+        args.limit = int(args.limit)
+        # set to 0 if actual value is less than 0
+        args.limit = 0 if args.limit < 0 else args.limit
+
     print(str(proxies))
-    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies)
+    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies,
+        image_limit=args.limit)
     sys.exit(0)
