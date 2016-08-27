@@ -73,14 +73,14 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
                 "\n\n#URL Format"
                 "\nhttp://cool-artist.tumblr.com/"
                 "\n#TAG Format"
-                "http://reblogging-artist.tumblr.com/;;original-post,cute"
+                "\nhttp://reblogging-artist.tumblr.com/;;original-post,cute"
                 "\n\n#If used, this file will try to download from "
                 "\"cool-artist\", \"lazy-artist\" and \"reblogging-artist\""
                 " but not \"inactive-artist\""
-                "#From \"reblogging-artist\","
-                "it will only download posts tagged \"original-post\" "
-                "or \"cute\" (Helpful for filtering out blogs that reblog a lot "
-                "but have a tag for their original content"
+                "\n#From \"reblogging-artist\","
+                "it will only download posts tagged \"original-post\" or \"cute\""
+                "\n#(Helpful for filtering out blogs that reblog a lot "
+                "but have a tag for their original content)"
             )
     else:
         if not noinfo:
