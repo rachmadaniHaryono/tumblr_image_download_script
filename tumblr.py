@@ -41,7 +41,7 @@ class Tumblr(object):
         self.limit_start = limit_start
         self.num = num
         # limit image
-        self.limit_image = None
+        self.image_limit = None
         self.need_save = need_save
         self.stream = stream
         self.timeout = timeout
@@ -142,9 +142,16 @@ class Tumblr(object):
                     if not self.need_save:
                         self.imglog.info("%s" % img)
                     else:
+                        # check if limit reached
+                        if self.image_limit is not None and self.image_limit <= image_counter:
+                            is_limit_reached = True
+                        else:
+                            is_limit_reached = False
+
+                        # pre process url before put it in queue
                         if self._check_already_exists(filename):
                             print("Skipping:\t" + filename)
-                        elif self.image_limit <= image_counter and self.image_limit:
+                        elif is_limit_reached:
                             print("Hit limit, skipping;\t" + filename)
                         else:
                             print("Queued:\t" + filename)
