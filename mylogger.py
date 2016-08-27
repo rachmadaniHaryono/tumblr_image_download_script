@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*-coding:utf-8-*-
-'''
+"""
+mylogger.py.
 #=============================================================================
 # FileName:     mylogger.py
 # Desc:         python logger support zip log file
@@ -11,7 +12,7 @@
 # Version:      0.1.2
 # LastChange:   2015-03-10 11:09:59
 #=============================================================================
-'''
+"""
 import logging
 import logging.handlers
 import sys
@@ -19,8 +20,11 @@ import os
 
 LOGGING_MSG_FORMAT = "%(name)s %(levelname)s %(asctime)s: %(message)s"
 LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+MAX_BYTE = 1024 * 1024 * 50
 
-def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50, backup_count=10):
+
+def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=MAX_BYTE, backup_count=10):
+    """get logger."""
     root_logger = logging.getLogger(logfile)
     if len(root_logger.handlers) == 0:
         if path.startswith('/'):
@@ -31,7 +35,7 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50
                     print(e)
                     sys.exit(1)
             else:
-                if not os.access(path, os.R_OK|os.W_OK):
+                if not os.access(path, os.R_OK | os.W_OK):
                     print(path, "without read/write permission")
                     sys.exit(1)
         else:
@@ -44,12 +48,12 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50
             path = path + '/'
 
         handler = logging.handlers.RotatingFileHandler(
-                    path + logfile + ".log",
-                    mode = "a",
-                    maxBytes = max_byte,
-                    backupCount = backup_count,
-                    encoding = "utf-8"
-                    )
+            path + logfile + ".log",
+            mode="a",
+            maxBytes=max_byte,
+            backupCount=backup_count,
+            encoding="utf-8"
+        )
 
         fmter = logging.Formatter(LOGGING_MSG_FORMAT, LOGGING_DATE_FORMAT)
         handler.setFormatter(fmter)
@@ -59,8 +63,8 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50
     return logging.getLogger(logfile)
 
 
-
 def test():
+    """test func."""
     #get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50, backup_count=10):
     mylog = get_logger("log_name", "abc/def", max_byte=100)
     for i in range(0, 10000):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-#-*-coding:utf-8-*-
-'''
+"""
+tumblr.py.
 #=============================================================================
 # FileName:     tumblr.py
 # Desc:         download imgs from tumblr
@@ -11,17 +11,15 @@
 # Version:      0.1.2
 # LastChange:   2015-01-22 17:26:08
 #=============================================================================
-'''
-
-"""
     download imgs from tumblr.
     json url like: http://er0.tumblr.com/api/read/json?start=0&num=10
 """
-import threading
+#-*-coding:utf-8-*-
 try:
-    from queue import Queue # py3
+    from queue import Queue  # py3
 except ImportError:
-    from Queue import Queue # py2
+    from Queue import Queue  # py2
+import threading
 import re
 import os
 import sys
@@ -29,9 +27,12 @@ import utils
 
 
 class Tumblr(object):
+    """tumblr class."""
+
     def __init__(self, blog, limit_start=0, num=30, threads_num=10, need_save=True, save_path=None,
                  img_re=None, total_post_re=None, max_posts=None, proxies=None, stream=True,
                  timeout=10, tags=['']):
+        """init func."""
         self.blog = blog
         self.tags = tags
         self.tag = ''
@@ -78,6 +79,7 @@ class Tumblr(object):
             self.get_imgs()
 
     def get_imgs(self):
+        """get img."""
         for tag in self.tags:
             self.tag = tag
             print("Tag: " + self.tag)
@@ -90,11 +92,29 @@ class Tumblr(object):
             if not self.img_queue.empty():
                     self._download_imgs()
 
+    def _process_img_queue(self, consumer):
+        """process image queue.
+
+        it is created to simplify get_imgs_using_threading func.
+        """
+        while True:
+            if not self.img_queue.empty():
+                for i in range(0, self.threads_num):
+                    c = threading.Thread(target=self._download_imgs)
+                    consumer.append(c)
+
+                for i in range(0, self.threads_num):
+                    consumer[i].start()
+                break
+            else:
+                break
+
     def get_imgs_using_threading(self):
+        """get imgs using threading."""
         consumer = []
         for tag in self.tags:
             self.tag = tag
-            print("Tag: " +self.tag)
+            print("Tag: " + self.tag)
             if not self.total_posts:
                 self._get_total_posts()
             if self.total_posts:
@@ -109,17 +129,7 @@ class Tumblr(object):
             self.total_posts = 0
 
         if self.need_save:
-            while True:
-                if not self.img_queue.empty():
-                    for i in range(0, self.threads_num):
-                        c = threading.Thread(target=self._download_imgs)
-                        consumer.append(c)
-
-                    for i in range(0, self.threads_num):
-                        consumer[i].start()
-                    break
-                else:
-                    break
+            self._process_img_queue(consumer)
 
     def _check_already_exists(self, name):
         if os.path.isfile(os.path.join(self.save_path, name)):
@@ -158,7 +168,10 @@ class Tumblr(object):
                 img_url = self.img_queue.get()
                 img_name = img_url.split('/')[-1]
                 if not (self.tags and os.path.exists(os.path.join(self.save_path, img_name))):
-                    utils.download_imgs(img_url, self.save_path, img_name, self.proxies, stream=self.stream, timeout=self.timeout)
+                    utils.download_imgs(
+                        img_url, self.save_path, img_name, self.proxies, stream=self.stream,
+                        timeout=self.timeout
+                    )
 
     def _get_total_posts(self):
         url = self.base_url + "0&num=1&tagged=" + self.tag
@@ -188,7 +201,7 @@ class Tumblr(object):
                         sys.exit(1)
                 else:
                     """ 检测有无读写权限 """
-                    if not os.access(self.save_path, os.R_OK|os.W_OK):
+                    if not os.access(self.save_path, os.R_OK | os.W_OK):
                         print("invalid save_path {0}".format(self.save_path))
                         sys.exit(1)
             else:
@@ -198,14 +211,19 @@ class Tumblr(object):
                 self.save_path = path
 
     def __str__(self):
+        """str repr."""
         if not self.total_posts:
             self._get_total_posts()
-        return "{0} has {1} posts, left {2} json to parse, left {3} imgs to download".format(self.blog, self.total_posts, self.post_queue.qsize(), self.img_queue.qsize())
+        txt_fmt = "{0} has {1} posts, left {2} json to parse, left {3} imgs to download"
+        return txt_fmt.format(
+            self.blog, self.total_posts, self.post_queue.qsize(), self.img_queue.qsize()
+        )
 
     __repr__ = __str__
 
 
 def test():
+    """test func."""
     proxies = {"http": "http://127.0.0.1:13456"}
     dl = Tumblr("er0", need_save=False, proxies=proxies)
     dl.run()

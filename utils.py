@@ -1,9 +1,7 @@
 # !/usr/bin/env python
 # -*-coding:utf-8-*-
 
-"""
-    通用程序
-"""
+u"""通用程序 (gt: General Procedure.)."""
 import sys
 import os
 import requests
@@ -21,11 +19,12 @@ except NameError:
     #  Python 2.x: ASCII
     #  Python 3.x: UTF-8
     # So no need to sys.setdefaultencoding('utf-8')
-    pass # py3
+    pass  # py3
 
 
 # 执行 requests 的数据下载
 def download_page(url, ret_json=False, proxies=None):
+    """download  page."""
     if not url:
         dllog.info("url should not be None")
         return ''
@@ -49,6 +48,7 @@ def download_page(url, ret_json=False, proxies=None):
 
 
 def download_imgs(url, path, name, proxies=None, stream=True, timeout=10):
+    """download imgs."""
     try:
         dllog.info("当前下载的(Current Download) url: %s " % url)
         r = requests.get(url, stream=stream, proxies=proxies, timeout=timeout)
@@ -62,6 +62,7 @@ def download_imgs(url, path, name, proxies=None, stream=True, timeout=10):
 
 
 def test():
+    """test func."""
     pass
 
 if __name__ == "__main__":

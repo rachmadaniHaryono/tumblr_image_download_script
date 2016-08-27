@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""main module."""
 # -*-coding:utf-8-*-
 from tumblr import Tumblr
 import re
@@ -8,18 +9,19 @@ import sys
 
 
 def readblogs(filename):
+    """read blog from filename."""
     blogs = []
     count = 0
     try:
         f = open(filename, 'r')
-    except FileNotFoundError:
+    except OSError:  # alternative to FileNotFoundError
         return blogs
     print("Reading " + filename + "...")
     for user in f:
         if not len(user) < 2:
             if user[0] == '#':
                 pass
-            elif (user[0]+user[1]) == "--":
+            elif (user[0] + user[1]) == "--":
                 count += 1
             else:
                 # remove txt formatting junk
@@ -46,7 +48,8 @@ def readblogs(filename):
 def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
     """run the program.
 
-    :param image_limit: limit the downloaded image."""
+    :param image_limit: limit the downloaded image.
+    """
     # print("\ninfo: " + str(info))
     # print("\nstream: " + str(stream))
     # print("\nthreading: " + str(threading))
@@ -59,21 +62,25 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
             sys.exit(0)
         if input("Would you like to generate an example file called example.txt? (y/n)\n") == 'y':
             example = open('example.txt', 'w')
-            example.write("#This line is a comment")
-            example.write("\n#Use -- to skip blogs:")
-            example.write("\n--http://inactive-artist.tumblr.com/")
-            example.write("\n\n#Blogs can be listed in Username format or URL format")
-            example.write("\n\n#Username Format")
-            example.write("\nlazy-artist")
-            example.write("\n\n#URL Format")
-            example.write("\nhttp://cool-artist.tumblr.com/")
-            example.write("\n#TAG Format")
-            example.write("http://reblogging-artist.tumblr.com/;;original-post,cute")
-            example.write("\n\n#If used, this file will try to download from "
-                          "\"cool-artist\", \"lazy-artist\" and \"reblogging-artist\" but not \"inactive-artist\"")
-            example.write("#From \"reblogging-artist\", it will only download posts tagged \"original-post\" "
-                          "or \"cute\" (Helpful for filtering out blogs that reblog a lot "
-                          "but have a tag for their original content")
+            example.write(
+                "#This line is a comment"
+                "\n#Use -- to skip blogs:"
+                "\n--http://inactive-artist.tumblr.com/"
+                "\n\n#Blogs can be listed in Username format or URL format"
+                "\n\n#Username Format"
+                "\nlazy-artist"
+                "\n\n#URL Format"
+                "\nhttp://cool-artist.tumblr.com/"
+                "\n#TAG Format"
+                "http://reblogging-artist.tumblr.com/;;original-post,cute"
+                "\n\n#If used, this file will try to download from "
+                "\"cool-artist\", \"lazy-artist\" and \"reblogging-artist\""
+                " but not \"inactive-artist\""
+                "#From \"reblogging-artist\","
+                "it will only download posts tagged \"original-post\" "
+                "or \"cute\" (Helpful for filtering out blogs that reblog a lot "
+                "but have a tag for their original content"
+            )
     else:
         if not noinfo:
             print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
@@ -105,14 +112,28 @@ if __name__ == "__main__":
         "Blogs may be skipped by starting the line with --. "
         "Lines starting with # are comments.")
     )
-    parser.add_argument('-i', '--noinfo', action='store_true', help="Doesn't show blog list or ask for confirmation")
-    parser.add_argument('-s', '--stream', action='store_true', help="Files downloaded are streamed")
-    parser.add_argument('-t', '--threading', action='store_true', help="Download using threading")
-    parser.add_argument('-n', '--timeout', help="Specify download timeout in seconds (Default is none)")
-    parser.add_argument('-f', '--filename', default="blogs.txt", help="Specify alternate filename for blogs.txt")
-    parser.add_argument('-p', '--proxy', default=None, help="Specify proxy in the form \'protocol://host:port\'")
+    parser.add_argument(
+        '-i', '--noinfo', action='store_true',
+        help="Doesn't show blog list or ask for confirmation"
+    )
+    parser.add_argument(
+        '-s', '--stream', action='store_true', help="Files downloaded are streamed"
+    )
+    parser.add_argument(
+        '-t', '--threading', action='store_true', help="Download using threading"
+    )
+    parser.add_argument(
+        '-n', '--timeout', help="Specify download timeout in seconds (Default is none)"
+    )
+    parser.add_argument(
+        '-f', '--filename', default="blogs.txt", help="Specify alternate filename for blogs.txt"
+    )
+    parser.add_argument(
+        '-p', '--proxy', default=None, help="Specify proxy in the form \'protocol://host:port\'"
+    )
     parser.add_argument('-l', '--limit', default=None, help="Limit the download image.")
     args = parser.parse_args()
+
     if args.proxy is not None:
         proxies = {args.proxy.split(':')[0]: args.proxy}
     else:
