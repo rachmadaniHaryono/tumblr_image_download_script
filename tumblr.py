@@ -20,11 +20,33 @@ try:
     from queue import Queue  # py3
 except ImportError:
     from Queue import Queue  # py2
-import threading
-import re
 import os
+import re
 import sys
+import threading
 import utils
+
+
+def get_video_url(data):
+    """get video url from data."""
+    urls = [x.split('\\"')[0].replace('\\/', '/')
+            for x in data.split('<source src=\\"') if x.startswith('http')]
+    return list(set(urls))
+
+
+def get_filename(url, default_vid_ext='.mp4'):
+    """get filename from url."""
+    if '/video_file/' in url:
+        basename = url.split('/video_file/')[1].split('/')[1]
+        bn_parts = list(os.path.splitext(basename))
+
+        # set default vid ext
+        if bn_parts[1] == '':
+            bn_parts[1] = default_vid_ext
+
+        return ''.join(bn_parts)
+    else:
+        return str(url.split('/')[-1])
 
 
 class Tumblr(object):
@@ -141,15 +163,20 @@ class Tumblr(object):
     def _get_img_urls(self):
         # counter for image_limit check
         image_counter = 0
+        is_limit_reached = False
         while not self.post_queue.empty():
             limit_start = self.post_queue.get()
             url = self.base_url + str(limit_start) + "&num=" + str(self.num) + "&tagged=" + self.tag
             data = utils.download_page(url, proxies=self.proxies)
-            if data:
-                imgs = self.img_re.findall(data)
+            vid_urls = get_video_url(data)
+
+            if data and not is_limit_reached:
+                imgs = []
+                imgs.extend(self.img_re.findall(data))
+                imgs.extend(vid_urls)
                 for img in imgs:
                     img = img.replace('\\', '')
-                    filename = str(img.split('/')[-1])
+                    filename = get_filename(img)
                     if not self.need_save:
                         self.imglog.info("%s" % img)
                     else:
@@ -169,12 +196,16 @@ class Tumblr(object):
                             self.img_queue.put(img)
                             image_counter += 1
 
+                    # stop the loop if limit reached.
+                    if is_limit_reached:
+                        break
+
     def _download_imgs(self):
         if self.need_save:
             while not all((self.img_queue.empty(), self.post_queue.empty())):
                 # print self.__str__()
                 img_url = self.img_queue.get()
-                img_name = img_url.split('/')[-1]
+                img_name = get_filename(img_url)
                 if not (self.tags and os.path.exists(os.path.join(self.save_path, img_name))):
                     utils.download_imgs(
                         img_url, self.save_path, img_name, self.proxies, stream=self.stream,
