@@ -9,6 +9,29 @@ import argparse
 import sys
 
 
+def format_tumblr_input(user):
+    """format tumblr input.
+
+    return (formatted_user, and tags).
+    """
+    # remove txt formatting junk
+    user = user.strip()
+    # get tags
+    tags = user.split(';;')
+    if len(tags) > 1:
+        tags = tags[1]
+        tags = tags.split(',')
+    else:
+        tags = ['']
+    #print(tags)
+    # remove url junk
+    user = re.sub(r"\.tumblr\.com/?.+", "", user)
+    user = re.sub(r"https?://", "", user)
+    user = re.sub(r"www\.", "", user)
+    user = re.sub(r";;.+", "", user)
+    return user, tags
+
+
 def readblogs(filename):
     """read blog from filename."""
     blogs = []
@@ -25,21 +48,7 @@ def readblogs(filename):
             elif (user[0] + user[1]) == "--":
                 count += 1
             else:
-                # remove txt formatting junk
-                user = user.strip()
-                # get tags
-                tags = user.split(';;')
-                if len(tags) > 1:
-                    tags = tags[1]
-                    tags = tags.split(',')
-                else:
-                    tags = ['']
-                #print(tags)
-                # remove url junk
-                user = re.sub(r"\.tumblr\.com/?.+", "", user)
-                user = re.sub(r"https?://", "", user)
-                user = re.sub(r"www\.", "", user)
-                user = re.sub(r";;.+", "", user)
+                user, tags = format_tumblr_input(user)
                 blogs.append(Tumblr(user, tags=tags))
     if count > 0:
         print("Skipped " + str(count) + " lines/users in " + filename + "\n")
@@ -57,17 +66,27 @@ def get_readable_time(seconds):
     return result
 
 
-def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
+def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, tumblr_input=None):
     """run the program.
 
     :param image_limit: limit the downloaded image.
+    :param tumblr_input: additional tumblr input from user.
     """
     # print("\ninfo: " + str(info))
     # print("\nstream: " + str(stream))
     # print("\nthreading: " + str(threading))
     # print("\ntimeout: " + str(timeout))
     # print("\nfilename: " + str(filename))
+
+    # read from text file.
     blogs = readblogs(filename)
+
+    # append additional tumblr input if exist.
+    if tumblr_input is not None:
+        user, tags = format_tumblr_input(tumblr_input)
+        blogs.append(Tumblr(user, tags=tags))
+
+    # check if no tumble input given or existed.
     if len(blogs) == 0:
         print("No blogs found in " + filename + ".\n")
         if noinfo:
@@ -93,6 +112,8 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
                 "\n#(Helpful for filtering out blogs that reblog a lot "
                 "but have a tag for their original content)"
             )
+
+    # process input
     else:
         if not noinfo:
             print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
@@ -145,6 +166,9 @@ if __name__ == "__main__":
     parser.add_argument(
         '-p', '--proxy', default=None, help="Specify proxy in the form \'protocol://host:port\'"
     )
+    parser.add_argument(
+        '--tumblr-input', metavar='TUMBLR', default=None, help="Tumblr user input."
+    )
     parser.add_argument('-l', '--limit', default=None, help="Limit the download image.")
     args = parser.parse_args()
 
@@ -161,5 +185,5 @@ if __name__ == "__main__":
 
     print(str(proxies))
     run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies,
-        image_limit=args.limit)
+        image_limit=args.limit, tumblr_input=args.tumblr_input)
     sys.exit(0)
