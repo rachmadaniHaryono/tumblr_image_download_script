@@ -46,6 +46,17 @@ def readblogs(filename):
     return blogs
 
 
+def get_readable_time(seconds):
+    """convert second into readable time."""
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+
+    result = '{}h'.format(h) if h > 0 else ''
+    result += '{}m'.format(m) if m > 0 else ''
+    result += '{}s'.format(s) if s > 0 else ''
+    return result
+
+
 def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
     """run the program.
 
@@ -103,7 +114,9 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
                      image_limit=image_limit)
         if not threading:
             end = time.time()
-            print("\n--Downloading Finished--\nTime Elapsed: " + str(round((end - start))) + "s")
+            elapsed_time = get_readable_time(round((end - start)))
+            txt_fmt = "\n--Downloading Finished--\nTime Elapsed: {}"
+            print(txt_fmt.format(elapsed_time))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=(
