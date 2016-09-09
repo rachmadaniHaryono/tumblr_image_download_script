@@ -46,7 +46,15 @@ def readblogs(filename):
 def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None):
     """run the program.
 
-    :param image_limit: limit the downloaded image."""
+    Args:
+        noinfo (bool): True if to not show blog list or ask for confirmation.
+        stream (bool): True to make the download to be streamed.
+        threading (bool): True to make download using threading.
+        timeout (int): Download timeout in seconds (Default is none)
+        filename : Filename for blogs.txt
+        proxy (str): Proxy to download.
+        image_limit (int): limit the downloaded image.
+    """
     # print("\ninfo: " + str(info))
     # print("\nstream: " + str(stream))
     # print("\nthreading: " + str(threading))
