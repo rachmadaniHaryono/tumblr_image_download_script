@@ -161,6 +161,7 @@ class Tumblr(object):
             return False
 
     def _get_img_urls(self):
+        """get image urls."""
         # counter for image_limit check
         image_counter = 0
         is_limit_reached = False

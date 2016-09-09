@@ -69,8 +69,15 @@ def get_readable_time(seconds):
 def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, tumblr_input=None):
     """run the program.
 
-    :param image_limit: limit the downloaded image.
-    :param tumblr_input: additional tumblr input from user.
+    Args:
+        noinfo (bool): True if to not show blog list or ask for confirmation.
+        stream (bool): True to make the download to be streamed.
+        threading (bool): True to make download using threading.
+        timeout (int): Download timeout in seconds (Default is none)
+        filename : Filename for blogs.txt
+        proxy (str): Proxy to download.
+        image_limit (int): Limit the downloaded image.
+        tumblr_input (str): Additional tumblr input from user.
     """
     # print("\ninfo: " + str(info))
     # print("\nstream: " + str(stream))
