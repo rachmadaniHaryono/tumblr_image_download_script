@@ -130,11 +130,12 @@ class Tumblr(object):
         """get image urls."""
         # counter for image_limit check
         image_counter = 0
+        is_limit_reached = False
         while not self.post_queue.empty():
             limit_start = self.post_queue.get()
             url = self.base_url + str(limit_start) + "&num=" + str(self.num) + "&tagged=" + self.tag
             data = utils.download_page(url, proxies=self.proxies)
-            if data:
+            if data and not is_limit_reached:
                 imgs = self.img_re.findall(data)
                 for img in imgs:
                     img = img.replace('\\', '')
@@ -157,6 +158,10 @@ class Tumblr(object):
                             print("Queued:\t" + filename)
                             self.img_queue.put(img)
                             image_counter += 1
+
+                    # stop the loop if limit reached.
+                    if is_limit_reached:
+                        break
 
     def _download_imgs(self):
         if self.need_save:
