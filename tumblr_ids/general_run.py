@@ -147,8 +147,15 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
             print(txt_fmt.format(elapsed_time))
 
 
-def main():
-    """main function."""
+def get_args(argv):
+    """get parsed arguments.
+
+    Args:
+        argv (list): List of arguments.
+
+    Returns
+        Parsed arguments.
+    """
     parser = argparse.ArgumentParser(description=(
         "Downloads all images from blogs specified in blogs.txt. "
         "Blogs can be formatted as a username: \"username\" "
@@ -180,7 +187,12 @@ def main():
     )
     parser.add_argument('-l', '--limit', default=None, help="Limit the download image.")
     args = parser.parse_args()
+    return args
 
+
+def main():
+    """main function."""
+    args = get_args(sys.argv[1:])
     if args.proxy is not None:
         proxies = {args.proxy.split(':')[0]: args.proxy}
     else:
