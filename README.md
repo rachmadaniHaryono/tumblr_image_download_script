@@ -35,7 +35,9 @@ It downloads all images posted or reblogged by the users specified in blogs.txt
 
 ##### blogs.txt
 By default the script will search for a file called blogs.txt in the folder
-which lists out all blogs to be downloaded from. The format for this file is as follows:
+which lists out all blogs to be downloaded from.
+The format for this file is as follows:
+
 - `#` used for comments
 - `--` used to skip blog
 - List blogs one per line as:
