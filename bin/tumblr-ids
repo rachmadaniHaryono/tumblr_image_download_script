@@ -1,0 +1,4 @@
+#!/usr/bin/env python3
+
+import tumblr_ids
+tumblr_ids.general_run.main()
