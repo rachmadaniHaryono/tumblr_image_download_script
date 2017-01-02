@@ -146,7 +146,9 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
             txt_fmt = "\n--Downloading Finished--\nTime Elapsed: {}"
             print(txt_fmt.format(elapsed_time))
 
-if __name__ == "__main__":
+
+def main():
+    """main function."""
     parser = argparse.ArgumentParser(description=(
         "Downloads all images from blogs specified in blogs.txt. "
         "Blogs can be formatted as a username: \"username\" "
@@ -193,4 +195,6 @@ if __name__ == "__main__":
     print(str(proxies))
     run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies,
         image_limit=args.limit, tumblr_input=args.tumblr_input)
-    sys.exit(0)
+
+if __name__ == "__main__":
+    sys.exit(main())
