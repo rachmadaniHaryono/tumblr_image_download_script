@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*-coding:utf-8-*-
 """main module."""
-# -*-coding:utf-8-*-
-from tumblr import Tumblr
 import re
 import time
 import argparse
 import sys
+
+from .tumblr import Tumblr
 
 
 def format_tumblr_input(user):

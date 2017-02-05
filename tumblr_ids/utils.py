@@ -7,7 +7,7 @@ import os
 import requests
 import time
 
-from mylogger import get_logger
+from .mylogger import get_logger
 dllog = get_logger(time.strftime("%d-%m-%Y+%H-%M-%S"))
 
 try:
