@@ -23,7 +23,7 @@ def format_tumblr_input(user):
         tags = tags.split(',')
     else:
         tags = ['']
-    #print(tags)
+    # print(tags)
     # remove url junk
     user = re.sub(r"\.tumblr\.com/?.+", "", user)
     user = re.sub(r"https?://", "", user)
@@ -207,6 +207,7 @@ def main():
     print(str(proxies))
     run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies,
         image_limit=args.limit, tumblr_input=args.tumblr_input)
+
 
 if __name__ == "__main__":
     sys.exit(main())

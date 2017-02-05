@@ -37,7 +37,8 @@ def download_page(url, ret_json=False, proxies=None):
                 return r.json()
             # r.text is decoded string
             # r.content is binary response content(bytes)
-            # see http://docs.python-requests.org/en/latest/user/quickstart/#binary-response-content
+            # see
+            # http://docs.python-requests.org/en/latest/user/quickstart/#binary-response-content
             return r.text
         else:
             dllog.info("下载失败(Download Failed)，status_code: %s" % r.status_code)
@@ -64,6 +65,7 @@ def download_imgs(url, path, name, proxies=None, stream=True, timeout=10):
 def test():
     """test func."""
     pass
+
 
 if __name__ == "__main__":
     test()

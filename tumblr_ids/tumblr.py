@@ -2,6 +2,7 @@
 # -*-coding:utf-8-*-
 """
 tumblr.py.
+
 #=============================================================================
 # FileName:     tumblr.py
 # Desc:         download imgs from tumblr
@@ -15,16 +16,18 @@ tumblr.py.
     download imgs from tumblr.
     json url like: http://er0.tumblr.com/api/read/json?start=0&num=10
 """
-#-*-coding:utf-8-*-
-try:
-    from queue import Queue  # py3
-except ImportError:
-    from Queue import Queue  # py2
+# -*-coding:utf-8-*-
 import os
 import re
 import sys
 import threading
-import utils
+try:
+    from queue import Queue  # py3
+except ImportError:
+    from Queue import Queue  # py2
+
+from . import utils
+from .mylogger import get_logger
 
 
 def get_video_url(data):
@@ -60,7 +63,8 @@ class Tumblr(object):
         self.tags = tags
         self.tag = ''
         self.base_url = "http://%s.tumblr.com/api/read/json?start=" % self.blog
-        self.total_post_re = total_post_re if total_post_re else re.compile(r'"posts-total":"*(\d+)"*,')
+        self.total_post_re = \
+            total_post_re if total_post_re else re.compile(r'"posts-total":"*(\d+)"*,')
         self.img_re = img_re if img_re else re.compile(r'photo-url-1280":"(http.*?)",')
         self.total_posts = 0
         self.max_posts = max_posts
@@ -75,7 +79,6 @@ class Tumblr(object):
             self.save_path = save_path
             self._check_save_path()
         else:
-            from mylogger import get_logger
             self.imglog = get_logger("imgurl")
 
         self.proxies = proxies
@@ -167,7 +170,8 @@ class Tumblr(object):
         is_limit_reached = False
         while not self.post_queue.empty():
             limit_start = self.post_queue.get()
-            url = self.base_url + str(limit_start) + "&num=" + str(self.num) + "&tagged=" + self.tag
+            url = \
+                self.base_url + str(limit_start) + "&num=" + str(self.num) + "&tagged=" + self.tag
             data = utils.download_page(url, proxies=self.proxies)
             vid_urls = get_video_url(data)
 
@@ -267,6 +271,7 @@ def test():
     proxies = {"http": "http://127.0.0.1:13456"}
     dl = Tumblr("er0", need_save=False, proxies=proxies)
     dl.run()
+
 
 if __name__ == "__main__":
     test()

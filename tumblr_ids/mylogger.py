@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-#-*-coding:utf-8-*-
+# -*-coding:utf-8-*-
 """
 mylogger.py.
+
 #=============================================================================
 # FileName:     mylogger.py
 # Desc:         python logger support zip log file
@@ -65,10 +66,12 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=MAX_BYTE, ba
 
 def test():
     """test func."""
-    #get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50, backup_count=10):
+    # get_logger(
+    # logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50, backup_count=10):
     mylog = get_logger("log_name", "abc/def", max_byte=100)
     for i in range(0, 10000):
         mylog.info("%d" % i)
+
 
 if __name__ == "__main__":
     test()
