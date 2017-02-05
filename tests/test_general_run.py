@@ -38,3 +38,20 @@ def test_readblogs(blogs_file):
             assert res == [m_tumblr.return_value, m_tumblr.return_value, m_tumblr.return_value]
         else:
             assert not res  # empty list
+
+
+@pytest.mark.parametrize(
+    'user, exp_res',
+    [
+        ('lazy-artist\n', ('lazy-artist', [''])),
+        ('http://cool-artist.tumblr.com/\n', ('cool-artist', [''])),
+        (
+            'http://reblogging-artist.tumblr.com/;;original-post,cute\n',
+            ('reblogging-artist', ['original-post', 'cute'])
+        ),
+    ]
+)
+def test_format_tumblr_input(user, exp_res):
+    """test func."""
+    from tumblr_ids.general_run import format_tumblr_input
+    assert exp_res == format_tumblr_input(user)
