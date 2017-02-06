@@ -55,3 +55,20 @@ def test_format_tumblr_input(user, exp_res):
     """test func."""
     from tumblr_ids.general_run import format_tumblr_input
     assert exp_res == format_tumblr_input(user)
+
+
+@pytest.mark.parametrize(
+    'seconds, exp_res',
+    [
+        (0, ''),
+        (1, '1s'),
+        (60, '1m'),
+        (3600, '1h'),
+        (3661, '1h1m1s'),
+
+    ]
+)
+def test_get_readable_time(seconds, exp_res):
+    """test func."""
+    from tumblr_ids.general_run import get_readable_time
+    assert exp_res == get_readable_time(seconds)
