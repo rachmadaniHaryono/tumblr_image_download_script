@@ -169,11 +169,14 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
         print_info()
     print("Running...\n")
     start = time.time()
-    for blog in blogs:
-        blog.run(
+    list(map(
+        lambda x:
+        x.run(
             use_threading=threading, stream=stream, timeout=timeout, proxies=proxy,
             image_limit=image_limit
-        )
+        ),
+        blogs
+    ))
     if not threading:
         print_elapsed_time(start_time=start)
 
