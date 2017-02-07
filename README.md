@@ -1,4 +1,5 @@
 ## Tumblr Image Download Script
+[![Build Status](https://travis-ci.org/rachmadaniHaryono/tumblr_image_download_script.svg?branch=master)](https://travis-ci.org/rachmadaniHaryono/tumblr_image_download_script)
 
 #### Description
 This is a fork of [leyle's tumblr_imgs_download](https://github.com/leyle/tumblr_imgs_download)
