@@ -203,7 +203,7 @@ def get_args(argv):
         '--tumblr-input', metavar='TUMBLR', default=None, help="Tumblr user input."
     )
     parser.add_argument('-l', '--limit', default=None, help="Limit the download image.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     return args
 
 
