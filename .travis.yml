@@ -8,3 +8,5 @@ install:
 script:
   - python -m flake8
   - python -m pytest
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
