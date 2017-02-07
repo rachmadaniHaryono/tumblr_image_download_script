@@ -91,6 +91,29 @@ def write_example():
         )
 
 
+def print_info(blogs, stream, threading, timeout):
+    """print info.
+
+    Args:
+        blogs (list): Tumblr blogs.
+        stream (bool): True to make the download to be streamed.
+        threading (bool): True to make download using threading.
+        timeout (int): Download timeout in seconds (Default is none)
+    """
+    print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
+    for user in blogs:
+        print(user.blog)
+    print("█████████████")
+    print("With the following settings:")
+    print("stream: " + str(stream))
+    print("threading: " + str(threading))
+    print("timeout: " + str(timeout))
+    print("█████████████")
+    if input("Proceed? (y/n)\n") != 'y':
+        print("Quitting - No files will be downloaded")
+        sys.exit(0)
+
+
 def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, tumblr_input=None):
     """run the program.
 
@@ -128,18 +151,7 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
     # process input
     else:
         if not noinfo:
-            print("Download/Update for the following Tumblr blogs? \n███ BLOGS ███")
-            for user in blogs:
-                print(user.blog)
-            print("█████████████")
-            print("With the following settings:")
-            print("stream: " + str(stream))
-            print("threading: " + str(threading))
-            print("timeout: " + str(timeout))
-            print("█████████████")
-            if input("Proceed? (y/n)\n") != 'y':
-                print("Quitting - No files will be downloaded")
-                sys.exit(0)
+            print_info()
         print("Running...\n")
         start = time.time()
         for blog in blogs:
