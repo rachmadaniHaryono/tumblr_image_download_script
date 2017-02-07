@@ -114,6 +114,21 @@ def print_info(blogs, stream, threading, timeout):
         sys.exit(0)
 
 
+def print_elapsed_time(start_time):
+    """print elapsed time.
+
+    Args:
+        start_time (int): Start time.
+    """
+    # compatibility
+    start = start_time
+
+    end = time.time()
+    elapsed_time = get_readable_time(round((end - start)))
+    txt_fmt = "\n--Downloading Finished--\nTime Elapsed: {}"
+    print(txt_fmt.format(elapsed_time))
+
+
 def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, tumblr_input=None):
     """run the program.
 
@@ -158,10 +173,7 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
             blog.run(use_threading=threading, stream=stream, timeout=timeout, proxies=proxy,
                      image_limit=image_limit)
         if not threading:
-            end = time.time()
-            elapsed_time = get_readable_time(round((end - start)))
-            txt_fmt = "\n--Downloading Finished--\nTime Elapsed: {}"
-            print(txt_fmt.format(elapsed_time))
+            print_elapsed_time(start_time=start)
 
 
 def get_args(argv):
