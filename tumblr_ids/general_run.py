@@ -162,18 +162,20 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
         if noinfo:
             sys.exit(0)
         write_example()
+        return
 
     # process input
-    else:
-        if not noinfo:
-            print_info()
-        print("Running...\n")
-        start = time.time()
-        for blog in blogs:
-            blog.run(use_threading=threading, stream=stream, timeout=timeout, proxies=proxy,
-                     image_limit=image_limit)
-        if not threading:
-            print_elapsed_time(start_time=start)
+    if not noinfo:
+        print_info()
+    print("Running...\n")
+    start = time.time()
+    for blog in blogs:
+        blog.run(
+            use_threading=threading, stream=stream, timeout=timeout, proxies=proxy,
+            image_limit=image_limit
+        )
+    if not threading:
+        print_elapsed_time(start_time=start)
 
 
 def get_args(argv):
