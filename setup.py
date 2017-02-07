@@ -19,4 +19,6 @@ setup(
     description='Download images from a tumblr blog (all or certain tags).',
     long_description=open('README.md').read(),
     # install_requires=[],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 )
