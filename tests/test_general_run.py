@@ -10,7 +10,7 @@ import pytest
     'blogs_file',
     [
         # example blogs file.
-        path.join(path.dirname(path.dirname(__file__)), 'blogs.txt'),
+        path.join(path.dirname(path.dirname(__file__)), 'example_file.txt'),
         'random_path'
     ]
 )
