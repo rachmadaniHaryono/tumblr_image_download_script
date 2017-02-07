@@ -1,4 +1,5 @@
 """test module."""
+from itertools import product
 from unittest import mock
 from os import path
 
@@ -72,3 +73,58 @@ def test_get_readable_time(seconds, exp_res):
     """test func."""
     from tumblr_ids.general_run import get_readable_time
     assert exp_res == get_readable_time(seconds)
+
+
+@pytest.mark.parametrize(
+    'noinfo, stream, threading, tumblr_input, readblogs_retval',
+    product(
+        [True, False],
+        [True, False],
+        [True, False],
+        [mock.Mock(), None],
+        [[mock.Mock()], []],
+    )
+)
+def test_run(noinfo, stream, threading, tumblr_input, readblogs_retval):
+    """test func."""
+    timeout = mock.Mock()
+    filename = mock.Mock()
+    proxy = mock.Mock()
+    image_limit = mock.Mock()
+
+    user = mock.Mock()
+    tags = mock.Mock()
+
+    blog = mock.Mock()
+    with mock.patch('tumblr_ids.general_run.readblogs') as m_readblogs, \
+            mock.patch('tumblr_ids.general_run.format_tumblr_input') as m_format_ti, \
+            mock.patch('tumblr_ids.general_run.Tumblr') as m_tumblr, \
+            mock.patch('tumblr_ids.general_run.sys') as m_sys, \
+            mock.patch('tumblr_ids.general_run.write_example') as m_write_example, \
+            mock.patch('tumblr_ids.general_run.print_info') as m_print_info, \
+            mock.patch('tumblr_ids.general_run.time') as m_time, \
+            mock.patch('tumblr_ids.general_run.print_elapsed_time') as m_print_et:
+        m_format_ti.return_value = (user, tags)
+        m_tumblr.return_value = blog
+        m_readblogs.return_value = readblogs_retval
+        from tumblr_ids.general_run import run
+        # run
+        run(noinfo, stream, threading, timeout, filename, proxy, image_limit, tumblr_input)
+        # test
+        m_readblogs.assert_called_once_with(filename)
+        if tumblr_input is not None:
+            m_format_ti.assert_called_once_with(tumblr_input)
+        if not readblogs_retval and tumblr_input is None:
+            if noinfo:
+                m_sys.exit.assert_called_once_with(0)
+            m_write_example.assert_called_once_with()
+            return
+        if not noinfo:
+            m_print_info.assert_called_once_with()
+        if tumblr_input is not None:
+            blog.run.assert_called_once_with(
+                image_limit=image_limit, proxies=proxy, stream=stream, timeout=timeout,
+                use_threading=threading
+            )
+        if not threading:
+            m_print_et.assert_called_once_with(start_time=m_time.time.return_value)
