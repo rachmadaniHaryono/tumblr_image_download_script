@@ -148,3 +148,20 @@ def test_write_example(input_retval):
         if input_retval == 'y':
             # file_obj.write.assert_called_once_with(example_file_text)
             assert file_obj.write.call_args[0][0] == example_file_text
+
+
+@pytest.mark.parametrize(
+    'argv, exp_res_dict',
+    [(
+        [],
+        {
+            'proxy': None, 'noinfo': False, 'limit': None, 'filename': 'blogs.txt',
+            'timeout': None, 'threading': False, 'tumblr_input': None, 'stream': False
+        }
+    )]
+)
+def test_get_args(argv, exp_res_dict):
+    """test func."""
+    from tumblr_ids.general_run import get_args
+    res = get_args(argv)
+    assert res.__dict__ == exp_res_dict
