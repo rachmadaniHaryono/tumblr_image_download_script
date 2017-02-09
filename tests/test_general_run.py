@@ -6,11 +6,14 @@ from os import path
 import pytest
 
 
+EXAMPLE_FILE = path.join(path.dirname(path.dirname(__file__)), 'example_file.txt')
+
+
 @pytest.mark.parametrize(
     'blogs_file',
     [
         # example blogs file.
-        path.join(path.dirname(path.dirname(__file__)), 'example_file.txt'),
+        EXAMPLE_FILE,
         'random_path'
     ]
 )
@@ -128,3 +131,20 @@ def test_run(noinfo, stream, threading, tumblr_input, readblogs_retval):
             )
         if not threading:
             m_print_et.assert_called_once_with(start_time=m_time.time.return_value)
+
+
+@pytest.mark.parametrize('input_retval', ['y', 'n'])
+def test_write_example(input_retval):
+    """test func."""
+    with open(EXAMPLE_FILE) as f:
+        example_file_text = f.read()
+    file_obj = mock.Mock()
+    with mock.patch('tumblr_ids.general_run.input') as m_input, \
+            mock.patch('tumblr_ids.general_run.open') as m_open:
+        m_input.return_value = input_retval
+        m_open.return_value = file_obj
+        from tumblr_ids.general_run import write_example
+        write_example()
+        if input_retval == 'y':
+            # file_obj.write.assert_called_once_with(example_file_text)
+            assert file_obj.write.call_args[0][0] == example_file_text
