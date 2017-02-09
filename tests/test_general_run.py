@@ -2,7 +2,6 @@
 from itertools import product
 from unittest import mock
 from os import path
-import argparse
 import time
 
 import pytest
