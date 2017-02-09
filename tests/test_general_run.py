@@ -2,6 +2,7 @@
 from itertools import product
 from unittest import mock
 from os import path
+import argparse
 import time
 
 import pytest
@@ -153,19 +154,36 @@ def test_write_example(input_retval):
 
 @pytest.mark.parametrize(
     'argv, exp_res_dict',
-    [(
-        [],
-        {
-            'proxy': None, 'noinfo': False, 'limit': None, 'filename': 'blogs.txt',
-            'timeout': None, 'threading': False, 'tumblr_input': None, 'stream': False
-        }
-    )]
+    [
+        (
+            [],
+            {
+                'proxy': None, 'noinfo': False, 'limit': None, 'filename': 'blogs.txt',
+                'timeout': None, 'threading': False, 'tumblr_input': None, 'stream': False
+            }
+        ),
+        (['--limit', '-1'], None),
+        (
+            ['--limit', '1'],
+            {
+                'proxy': None, 'noinfo': False, 'limit': 1, 'filename': 'blogs.txt',
+                'timeout': None, 'threading': False, 'tumblr_input': None, 'stream': False
+            }
+        ),
+    ]
 )
 def test_get_args(argv, exp_res_dict):
     """test func."""
     from tumblr_ids.general_run import get_args
-    res = get_args(argv)
-    assert res.__dict__ == exp_res_dict
+    # run
+    if argv == ['--limit', '-1']:
+        with pytest.raises(SystemExit):
+            res = get_args(argv)
+    else:
+        res = get_args(argv)
+    # test
+    if exp_res_dict is not None:
+        assert res.__dict__ == exp_res_dict
 
 
 def test_print_elapsed_time():
