@@ -2,6 +2,7 @@
 from itertools import product
 from unittest import mock
 from os import path
+import time
 
 import pytest
 
@@ -165,3 +166,10 @@ def test_get_args(argv, exp_res_dict):
     from tumblr_ids.general_run import get_args
     res = get_args(argv)
     assert res.__dict__ == exp_res_dict
+
+
+def test_print_elapsed_time():
+    """test func."""
+    from tumblr_ids.general_run import print_elapsed_time
+    start_time = time.time()
+    print_elapsed_time(start_time)
