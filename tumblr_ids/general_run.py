@@ -184,6 +184,23 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
         print_elapsed_time(start_time=start)
 
 
+def check_positive(value):
+    """check if value is positive.
+
+    taken and modified from http://stackoverflow.com/a/14117511
+
+    Args:
+        value: Value
+
+    Return:
+        int: Integer from value.
+    """
+    ivalue = int(value)
+    if ivalue < 0:
+        raise argparse.ArgumentTypeError("%s is an invalid positive int value" % value)
+    return ivalue
+
+
 def get_args(argv):
     """get parsed arguments.
 
@@ -222,7 +239,9 @@ def get_args(argv):
     parser.add_argument(
         '--tumblr-input', metavar='TUMBLR', default=None, help="Tumblr user input."
     )
-    parser.add_argument('-l', '--limit', default=None, help="Limit the download image.")
+    parser.add_argument(
+        '-l', '--limit', default=None, help="Limit the download image.", type=check_positive
+    )
     args = parser.parse_args(argv)
     return args
 
@@ -234,12 +253,6 @@ def main():
         proxies = {args.proxy.split(':')[0]: args.proxy}
     else:
         proxies = None
-
-    # clean args.limit input
-    if args.limit:
-        args.limit = int(args.limit)
-        # set to 0 if actual value is less than 0
-        args.limit = 0 if args.limit < 0 else args.limit
 
     print(str(proxies))
     run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies,
