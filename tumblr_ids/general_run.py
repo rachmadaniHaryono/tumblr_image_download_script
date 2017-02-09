@@ -70,25 +70,28 @@ def write_example():
     """write example."""
     if input("Would you like to generate an example file called example.txt? (y/n)\n") == 'y':
         example = open('example.txt', 'w')
-        example.write(
-            "#This line is a comment"
-            "\n#Use -- to skip blogs:"
-            "\n--http://inactive-artist.tumblr.com/"
-            "\n\n#Blogs can be listed in Username format or URL format"
-            "\n\n#Username Format"
-            "\nlazy-artist"
-            "\n\n#URL Format"
-            "\nhttp://cool-artist.tumblr.com/"
-            "\n#TAG Format"
-            "\nhttp://reblogging-artist.tumblr.com/;;original-post,cute"
-            "\n\n#If used, this file will try to download from "
-            "\"cool-artist\", \"lazy-artist\" and \"reblogging-artist\""
-            " but not \"inactive-artist\""
-            "\n#From \"reblogging-artist\","
-            "it will only download posts tagged \"original-post\" or \"cute\""
-            "\n#(Helpful for filtering out blogs that reblog a lot "
-            "but have a tag for their original content)"
-        )
+        example.write("""#This line is a comment
+#Use -- to skip blogs:
+--http://inactive-artist.tumblr.com/
+
+#Blogs can be listed in Username format or URL format
+
+#Username Format
+lazy-artist
+
+#URL Format
+http://cool-artist.tumblr.com/
+
+#TAG Format
+http://reblogging-artist.tumblr.com/;;original-post,cute
+
+#If used, this file will try to download
+#from "cool-artist", "lazy-artist" and "reblogging-artist", but not "inactive-artist"
+#From "reblogging-artist",
+#it will only download posts tagged "original-post" or "cute"
+#(Helpful for filtering out blogs that reblog a lot
+#but have a tag for their original content)
+""")
 
 
 def print_info(blogs, stream, threading, timeout):

@@ -13,7 +13,9 @@ http://cool-artist.tumblr.com/
 #TAG Format
 http://reblogging-artist.tumblr.com/;;original-post,cute
 
-#If used, this file will try to download from "cool-artist", "lazy-artist" and "reblogging-artist",
-#but not "inactive-artist"
-#From "reblogging-artist", it will only download posts tagged "original-post" or "cute"
-#(Helpful for filtering out blogs that reblog a lot but have a tag for their original content)
+#If used, this file will try to download
+#from "cool-artist", "lazy-artist" and "reblogging-artist", but not "inactive-artist"
+#From "reblogging-artist",
+#it will only download posts tagged "original-post" or "cute"
+#(Helpful for filtering out blogs that reblog a lot
+#but have a tag for their original content)
