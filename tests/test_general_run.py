@@ -209,3 +209,17 @@ def test_print_elapsed_time():
     from tumblr_ids.general_run import print_elapsed_time
     start_time = time.time()
     print_elapsed_time(start_time)
+
+
+@pytest.mark.parametrize('input_retval', ['y', 'n'])
+def test_print_info(input_retval):
+    """test func."""
+    with mock.patch('tumblr_ids.general_run.sys') as m_sys, \
+            mock.patch('tumblr_ids.general_run.input') as m_input:
+        m_input.return_value = input_retval
+        from tumblr_ids.general_run import print_info
+        # run
+        print_info(blogs=[], stream=mock.Mock(), threading=mock.Mock(), timeout=mock.Mock())
+        # test
+        if input_retval != 'y':
+            m_sys.exit.assert_called_once_with(0)
