@@ -246,3 +246,13 @@ def test_main():
             args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxies,
             image_limit=args.limit, tumblr_input=args.tumblr_input
         )
+
+
+@pytest.mark.parametrize(
+    'value, exp_res',
+    [(None, None), ('protocol://host:port', {'protocol': 'protocol://host:port'})]
+)
+def test_check_proxy(value, exp_res):
+    """test func"""
+    from tumblr_ids.general_run import check_proxy
+    assert exp_res == check_proxy(value)
