@@ -85,7 +85,7 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=MAX_BYTE, ba
     return logging.getLogger(logfile)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     # get_logger(
     # logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50, backup_count=10):
     mylog = get_logger("log_name", "abc/def", max_byte=100)
