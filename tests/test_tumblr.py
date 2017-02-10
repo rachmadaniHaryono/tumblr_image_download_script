@@ -1,4 +1,9 @@
 """test module."""
+from itertools import product
+from unittest import mock
+import queue
+import re
+
 import pytest
 
 
@@ -36,3 +41,69 @@ def test_get_filename(url, exp_res):
     """test func."""
     from tumblr_ids.tumblr import get_filename
     assert exp_res == get_filename(url)
+
+
+@pytest.mark.parametrize(
+    'total_post_re, img_re, save_path, need_save',
+    product(
+        [None, mock.Mock()],
+        [None, mock.Mock()],
+        [None, mock.Mock()],
+        [True, False, None]
+    )
+)
+def test_init(total_post_re, img_re, save_path, need_save):
+    """test init.
+
+    None as input value mean no input given, not `None` as value given.
+    """
+    blog = mock.Mock()
+    default_attr = {
+        'base_url': "http://{}.tumblr.com/api/read/json?start=".format(blog),
+        'blog': blog,
+        'image_limit': None,
+        'img_re': re.compile('photo-url-1280":"(http.*?)",'),
+        'imglog': None,
+        'limit_start': 0,
+        'max_posts': None,
+        'need_save': True,
+        'num': 30,
+        'proxies': None,
+        'save_path': None,
+        'stream': True,
+        'tag': '',
+        'tags': [''],
+        'threads_num': 10,
+        'timeout': 10,
+        'total_post_re': re.compile('"posts-total":"*(\\d+)"*,'),
+        'total_posts': 0
+    }
+    default_attr['need_save'] = need_save is None or need_save
+    default_attr['total_post_re'] = total_post_re if total_post_re is not None else \
+        re.compile('"posts-total":"*(\\d+)"*,')
+    default_attr['img_re'] = img_re if img_re is not None else \
+        re.compile('photo-url-1280":"(http.*?)",')
+    default_attr['save_path'] = save_path if need_save is None or need_save else None
+    kwargs = {'blog': blog}
+    if total_post_re is not None:
+        kwargs['total_post_re'] = total_post_re
+    if img_re is not None:
+        kwargs['img_re'] = img_re
+    if need_save is not None:
+        kwargs['need_save'] = need_save
+    if save_path is not None:
+        kwargs['save_path'] = save_path
+    with mock.patch('tumblr_ids.tumblr.get_logger') as m_get_logger:
+        from tumblr_ids.tumblr import Tumblr
+        Tumblr._check_save_path = mock.Mock()
+        if not(need_save is None or need_save):
+            default_attr['imglog'] = m_get_logger.return_value
+        obj = Tumblr(**kwargs)
+        obj_vars = vars(obj)
+        assert isinstance(obj_vars.pop('img_queue'), queue.Queue)
+        assert isinstance(obj_vars.pop('post_queue'), queue.Queue)
+        assert obj_vars == default_attr
+        if need_save or need_save is None:
+            obj._check_save_path.assert_called_once_with()
+        else:
+            m_get_logger.assert_called_once_with('imgurl')
