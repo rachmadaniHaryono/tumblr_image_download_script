@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*-coding:utf-8-*-
 """main module."""
-import re
-import time
 import argparse
+import pprint
+import re
 import sys
+import time
 
 from .tumblr import Tumblr
 
@@ -201,6 +202,25 @@ def check_positive(value):
     return ivalue
 
 
+def check_proxy(value):
+    """check if given proxy valid and process it.
+
+    modified from check_positive func.
+
+    Args:
+        value: Value
+
+    Return:
+        dict: Formatted proxy.
+    """
+    if value is not None:
+        proxies = {value.split(':')[0]: value}
+    else:
+        proxies = None
+    print('Proxy: {}'.format(pprint.pformat(proxies)))
+    return proxies
+
+
 def get_args(argv):
     """get parsed arguments.
 
@@ -234,7 +254,8 @@ def get_args(argv):
         '-f', '--filename', default="blogs.txt", help="Specify alternate filename for blogs.txt"
     )
     parser.add_argument(
-        '-p', '--proxy', default=None, help="Specify proxy in the form \'protocol://host:port\'"
+        '-p', '--proxy', default=None, help="Specify proxy in the form \'protocol://host:port\'",
+        type=check_proxy
     )
     parser.add_argument(
         '--tumblr-input', metavar='TUMBLR', default=None, help="Tumblr user input."
@@ -249,13 +270,8 @@ def get_args(argv):
 def main():
     """main function."""
     args = get_args(sys.argv[1:])
-    if args.proxy is not None:
-        proxies = {args.proxy.split(':')[0]: args.proxy}
-    else:
-        proxies = None
 
-    print(str(proxies))
-    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, proxies,
+    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxies,
         image_limit=args.limit, tumblr_input=args.tumblr_input)
 
 
