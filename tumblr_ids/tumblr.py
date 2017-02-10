@@ -266,12 +266,7 @@ class Tumblr(object):
     __repr__ = __str__
 
 
-def test():
-    """test func."""
+if __name__ == "__main__":  # pragma: no cover
     proxies = {"http": "http://127.0.0.1:13456"}
     dl = Tumblr("er0", need_save=False, proxies=proxies)
     dl.run()
-
-
-if __name__ == "__main__":
-    test()
