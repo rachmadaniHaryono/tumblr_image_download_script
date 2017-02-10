@@ -107,3 +107,34 @@ def test_init(total_post_re, img_re, save_path, need_save):
             obj._check_save_path.assert_called_once_with()
         else:
             m_get_logger.assert_called_once_with('imgurl')
+
+
+@pytest.mark.parametrize(
+    'use_threading, image_limit',
+    product([True, False, None], [None, mock.Mock()])
+)
+def test_run(use_threading, image_limit):
+    """test run."""
+    exp_obj_vars = {'proxies': None, 'stream': True, 'timeout': 10}
+    kwargs = {}
+    if use_threading is not None:
+        kwargs['use_threading'] = use_threading
+    if image_limit is not None:
+        kwargs['image_limit'] = image_limit
+        exp_obj_vars['image_limit'] = image_limit
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None):
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blog=mock.Mock())
+        obj.get_imgs_using_threading = mock.Mock()
+        obj.get_imgs = mock.Mock()
+        # run
+        obj.run(**kwargs)
+        # test
+        if use_threading is None or use_threading:
+            obj.get_imgs_using_threading.assert_called_once_with()
+        else:
+            obj.get_imgs.assert_called_once_with()
+        obj_vars = vars(obj)
+        obj_vars.pop('get_imgs_using_threading')
+        obj_vars.pop('get_imgs')
+        assert obj_vars == exp_obj_vars
