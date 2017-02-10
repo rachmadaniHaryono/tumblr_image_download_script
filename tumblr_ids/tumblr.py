@@ -78,7 +78,9 @@ class Tumblr(object):
         if self.need_save:
             self.save_path = save_path
             self._check_save_path()
+            self.imglog = None
         else:
+            self.save_path = None
             self.imglog = get_logger("imgurl")
 
         self.proxies = proxies
