@@ -15,6 +15,5 @@ def test_get_logger_with_non_empty_handlers_on_root_logger():
         # test
         m_logging.assert_has_calls([
             mock.call.getLogger(logfile),
-            mock.call.getLogger(logfile),
         ])
         assert res == m_logging.getLogger.return_value
