@@ -64,14 +64,9 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=MAX_BYTE, ba
     return logging.getLogger(logfile)
 
 
-def test():
-    """test func."""
+if __name__ == "__main__":
     # get_logger(
     # logfile, path="logs/", level=logging.DEBUG, max_byte=1024*1024*50, backup_count=10):
     mylog = get_logger("log_name", "abc/def", max_byte=100)
     for i in range(0, 10000):
         mylog.info("%d" % i)
-
-
-if __name__ == "__main__":
-    test()
