@@ -231,3 +231,18 @@ def test_print_info(input_retval):
         # test
         if input_retval != 'y':
             m_sys.exit.assert_called_once_with(0)
+
+
+def test_main():
+    """test func."""
+    argv = mock.Mock()
+    args = mock.Mock()
+    with mock.patch('tumblr_ids.general_run.get_args') as m_get_args, \
+            mock.patch('tumblr_ids.general_run.run') as m_run:
+        m_get_args.return_value = args
+        from tumblr_ids.general_run import main
+        main(argv)
+        m_run.assert_called_once_with(
+            args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxies,
+            image_limit=args.limit, tumblr_input=args.tumblr_input
+        )
