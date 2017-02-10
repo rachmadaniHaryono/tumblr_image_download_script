@@ -29,17 +29,15 @@ def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=MAX_BYTE, ba
     root_logger = logging.getLogger(logfile)
     if len(root_logger.handlers) != 0:
         return root_logger
-    if path.startswith('/'):
-        if not os.path.isdir(path):
-            try:
-                os.makedirs(path)
-            except OSError as e:
-                print(e)
-                sys.exit(1)
-        else:
-            if not os.access(path, os.R_OK | os.W_OK):
-                print(path, "without read/write permission")
-                sys.exit(1)
+    if path.startswith('/') and not os.path.isdir(path):
+        try:
+            os.makedirs(path)
+        except OSError as e:
+            print(e)
+            sys.exit(1)
+    elif path.startswith('/') and not os.access(path, os.R_OK | os.W_OK):
+        print(path, "without read/write permission")
+        sys.exit(1)
     else:
         """ create new log file path, pwd+path """
         path = os.path.join(sys.path[0], path)
