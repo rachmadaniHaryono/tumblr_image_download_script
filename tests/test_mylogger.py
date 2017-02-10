@@ -102,7 +102,7 @@ def test_process_path_as_folder(isdir_retval, access_retval, makedirs_raise_erro
         m_os.path.isdir.return_value = isdir_retval
         m_os.access.return_value = access_retval
         if makedirs_raise_error:
-            m_os.makedirs.side_effects = OSError
+            m_os.makedirs.side_effect = OSError
         from tumblr_ids import mylogger
 
         if not isdir_retval and not makedirs_raise_error:
@@ -112,7 +112,8 @@ def test_process_path_as_folder(isdir_retval, access_retval, makedirs_raise_erro
                 mock.call.makedirs(path),
             ])
         elif not isdir_retval and makedirs_raise_error:
-            mylogger.process_path_as_folder(path)
+            with pytest.raises(SystemExit):
+                mylogger.process_path_as_folder(path)
             m_os.assert_has_calls([
                 mock.call.path.isdir(path),
                 mock.call.makedirs(path),
