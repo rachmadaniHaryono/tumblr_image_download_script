@@ -188,6 +188,14 @@ def test_write_example(input_retval):
                 'timeout': None, 'threading': False, 'tumblr_input': None, 'stream': False
             }
         ),
+        (
+            ['--proxy', 'protocol://host:port'],
+            {
+                'proxy': {'protocol': 'protocol://host:port'}, 'noinfo': False, 'limit': None,
+                'filename': 'blogs.txt', 'timeout': None, 'threading': False,
+                'tumblr_input': None, 'stream': False
+            }
+        ),
     ]
 )
 def test_get_args(argv, exp_res_dict):
