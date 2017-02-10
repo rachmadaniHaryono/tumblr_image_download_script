@@ -267,13 +267,15 @@ def get_args(argv):
     return args
 
 
-def main():
+def main(argv):
     """main function."""
-    args = get_args(sys.argv[1:])
+    args = get_args(argv)
 
-    run(args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxies,
-        image_limit=args.limit, tumblr_input=args.tumblr_input)
+    run(
+        args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxies,
+        image_limit=args.limit, tumblr_input=args.tumblr_input
+    )
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
