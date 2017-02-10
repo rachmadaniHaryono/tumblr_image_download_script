@@ -24,31 +24,53 @@ LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 MAX_BYTE = 1024 * 1024 * 50
 
 
-def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=MAX_BYTE, backup_count=10):
-    """get logger."""
-    root_logger = logging.getLogger(logfile)
-    if len(root_logger.handlers) != 0:
-        return root_logger
-    if path.startswith('/') and not os.path.isdir(path):
+def create_new_logfile_path(path):
+    """ create new log file path, pwd+path.
+
+    Args:
+        path: New path.
+
+    Returns:
+        Modified path.
+    """
+    path = os.path.join(sys.path[0], path)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
+
+
+def process_path_as_folder(path):
+    """process path as folder.
+
+    Args:
+        path: Path
+    """
+    if not os.path.isdir(path):
         try:
             os.makedirs(path)
         except OSError as e:
             print(e)
             sys.exit(1)
-    elif path.startswith('/') and not os.access(path, os.R_OK | os.W_OK):
+    elif not os.access(path, os.R_OK | os.W_OK):
         print(path, "without read/write permission")
         sys.exit(1)
-    else:
-        """ create new log file path, pwd+path """
-        path = os.path.join(sys.path[0], path)
-        if not os.path.isdir(path):
-            os.makedirs(path)
 
+
+def get_logger(logfile, path="logs/", level=logging.DEBUG, max_byte=MAX_BYTE, backup_count=10):
+    """get logger."""
+    root_logger = logging.getLogger(logfile)
+    if len(root_logger.handlers) != 0:
+        return root_logger
+    if path.startswith('/'):
+        # assuming path is folder
+        process_path_as_folder(path)
+    else:
+        path = create_new_logfile_path(path=path)
     if not path.endswith('/'):
-        path = path + '/'
+        path = '{}/'.format(path)
 
     handler = logging.handlers.RotatingFileHandler(
-        path + logfile + ".log",
+        '{}{}.log'.format(path, logfile),
         mode="a",
         maxBytes=max_byte,
         backupCount=backup_count,
