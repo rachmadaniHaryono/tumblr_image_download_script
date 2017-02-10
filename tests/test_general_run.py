@@ -134,6 +134,25 @@ def test_run(noinfo, stream, threading, tumblr_input, readblogs_retval):
             m_print_et.assert_called_once_with(start_time=m_time.time.return_value)
 
 
+@pytest.mark.parametrize('noinfo', [True, False])
+def test_run_with_no_blog_given(noinfo):
+    """test func."""
+    with mock.patch('tumblr_ids.general_run.readblogs') as m_readblogs, \
+            mock.patch('tumblr_ids.general_run.sys') as m_sys, \
+            mock.patch('tumblr_ids.general_run.write_example') as m_write_example:
+        m_readblogs.return_value = []
+        from tumblr_ids.general_run import run
+        # run
+        run(
+            noinfo=noinfo, stream=mock.Mock(), threading=mock.Mock(), timeout=mock.Mock(),
+            filename='filename', proxy=mock.Mock(), tumblr_input=None
+        )
+        # test
+        m_write_example.assert_called_once_with()
+        if noinfo:
+            m_sys.exit.assert_called_once_with(0)
+
+
 @pytest.mark.parametrize('input_retval', ['y', 'n'])
 def test_write_example(input_retval):
     """test func."""
