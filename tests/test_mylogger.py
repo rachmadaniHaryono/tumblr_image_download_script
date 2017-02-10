@@ -97,27 +97,30 @@ def test_process_path_as_folder(isdir_retval, access_retval, makedirs_raise_erro
     """test func."""
     path = mock.Mock()
     with mock.patch('tumblr_ids.mylogger.os') as m_os:
-        m_os.isdir.return_value = isdir_retval
+        m_os.R_OK = 0
+        m_os.W_OK = 1
+        m_os.path.isdir.return_value = isdir_retval
         m_os.access.return_value = access_retval
         if makedirs_raise_error:
             m_os.makedirs.side_effects = OSError
         from tumblr_ids import mylogger
-        if not access_retval or makedirs_raise_error:
-            with pytest.raises('SystemExit'):
-                mylogger.process_path_as_folder(path)
-            if not isdir_retval:
-                m_os.assert_has_calls([
-                    mock.call.path.isdir(path),
-                    mock.call.makedirs(path),
-                ])
-            elif not access_retval:
-                m_os.assert_has_calls([
-                    mock.call.path.isdir(path),
-                    mock.call.access_retval(path, m_os.R_OK | m_os.W_OK),
-                ])
-        else:
+
+        if not isdir_retval and not makedirs_raise_error:
             mylogger.process_path_as_folder(path)
             m_os.assert_has_calls([
                 mock.call.path.isdir(path),
                 mock.call.makedirs(path),
+            ])
+        elif not isdir_retval and makedirs_raise_error:
+            mylogger.process_path_as_folder(path)
+            m_os.assert_has_calls([
+                mock.call.path.isdir(path),
+                mock.call.makedirs(path),
+            ])
+        elif not access_retval:
+            with pytest.raises(SystemExit):
+                mylogger.process_path_as_folder(path)
+            m_os.assert_has_calls([
+                mock.call.path.isdir(path),
+                mock.call.access(path, m_os.R_OK | m_os.W_OK),
             ])
