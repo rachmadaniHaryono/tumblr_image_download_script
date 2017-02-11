@@ -247,3 +247,84 @@ def test_check_already_exists(isfile_retval):
         obj.save_path = mock.Mock()
         res = obj._check_already_exists(name=name)
         assert isfile_retval == res
+
+
+@pytest.mark.parametrize('data', [None, mock.Mock()])
+def test_get_img_urls(data):
+    """test method."""
+    q_item = mock.Mock()
+    item1 = mock.Mock()
+    item2 = mock.Mock()
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.utils') as m_utils, \
+            mock.patch('tumblr_ids.tumblr.get_video_url') as m_get_vu:
+        m_utils.download_page.return_value = data
+        m_get_vu.return_value = [item2]
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blog=mock.Mock())
+        obj.post_queue = queue.Queue()
+        obj.post_queue.put(q_item)
+        obj.base_url = mock.Mock()
+        obj.num = mock.Mock()
+        obj.tag = mock.Mock()
+        obj.proxies = mock.Mock()
+        obj.img_re = mock.Mock()
+        obj.img_re.findall.return_value = [item1]
+        obj._process_images = mock.Mock()
+        obj._process_images.return_value = {'is_limit_reached': False, 'image_counter': 0}
+        # run
+        obj._get_img_urls()
+        # test
+        m_utils.download_page.assert_called_once_with(
+            "{}{}&num={}&tagged={}".format(obj.base_url, q_item, obj.num, obj.tag),
+            proxies=obj.proxies
+        )
+        if data:
+            obj._process_images(
+                image_counter=0,
+                images=[item1, item2],
+                is_limit_reached=False
+            )
+
+
+@pytest.mark.parametrize(
+    'filename_exists, is_limit_reached, need_save, image_limit',
+    product(
+        [True, False],
+        [True, False],
+        [True, False],
+        [None, 0],
+    )
+)
+def test_process_images(filename_exists, is_limit_reached, need_save, image_limit):
+    """test method."""
+    img_item = mock.Mock()
+    img_item.replace.return_value = img_item
+    images = [img_item]
+    image_counter = 0
+    filename = mock.Mock()
+    exp_res = {'is_limit_reached': is_limit_reached, 'image_counter': image_counter}
+    if need_save:
+        if image_limit is not None:
+            if image_limit <= image_counter:
+                exp_res['is_limit_reached'] = True
+        else:
+            exp_res['is_limit_reached'] = False
+        if not(filename_exists or exp_res['is_limit_reached']):
+            exp_res['image_counter'] += 1
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.get_filename', return_value=filename):
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blog=mock.Mock())
+        obj.need_save = need_save
+        obj.image_limit = image_limit
+        obj.img_queue = mock.Mock()
+        obj.imglog = mock.Mock()
+        obj._check_already_exists = mock.Mock(return_value=filename_exists)
+        # run
+        res = obj._process_images(
+            images=images, image_counter=image_counter, is_limit_reached=is_limit_reached)
+        assert res == exp_res
+        # test
+        if need_save and not(filename_exists or exp_res['is_limit_reached']):
+            obj.img_queue.put.assert_called_once_with(images[0])
