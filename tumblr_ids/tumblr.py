@@ -137,23 +137,31 @@ class Tumblr(object):
             else:
                 break
 
+    def _run_threads(self):
+        """run threads.
+
+        helper function when getting images using threading.
+        """
+        producer = []
+        for _ in range(0, self.threads_num):
+            p = threading.Thread(target=self._get_img_urls)
+            producer.append(p)
+        for i in range(0, self.threads_num):
+            producer[i].start()
+        for i in range(0, self.threads_num):
+            producer[i].join()
+
     def get_imgs_using_threading(self):
         """get imgs using threading."""
         consumer = []
         for tag in self.tags:
             self.tag = tag
-            print("Tag: " + self.tag)
+            print("Tag: {}".format(self.tag))
             if not self.total_posts:
-                self._get_total_posts()
+                self.total_posts = self._get_total_posts()
             if self.total_posts:
-                producer = []
-                for i in range(0, self.threads_num):
-                    p = threading.Thread(target=self._get_img_urls)
-                    producer.append(p)
-                for i in range(0, self.threads_num):
-                    producer[i].start()
-                for i in range(0, self.threads_num):
-                    producer[i].join()
+                self._run_threads()
+            # reset total posts
             self.total_posts = 0
 
         if self.need_save:
@@ -230,6 +238,7 @@ class Tumblr(object):
             while limit_start < self.total_posts:
                 self.post_queue.put(limit_start)
                 limit_start += self.num
+        return self.total_posts
 
     def _check_save_path(self):
         if not self.save_path:
