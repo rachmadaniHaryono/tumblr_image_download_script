@@ -110,15 +110,14 @@ class Tumblr(object):
         """get img."""
         for tag in self.tags:
             self.tag = tag
-            print("Tag: " + self.tag)
+            print("Tag: {}".format(self.tag))
             if not self.total_posts:
-                self._get_total_posts()
+                self.total_posts = self._get_total_posts()
             if self.total_posts:
                 self._get_img_urls()
             self.total_posts = 0
-        if self.need_save:
-            if not self.img_queue.empty():
-                    self._download_imgs()
+        if self.need_save and not self.img_queue.empty():
+            self._download_imgs()
 
     def _process_img_queue(self, consumer):
         """process image queue.
