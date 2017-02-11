@@ -142,7 +142,7 @@ def test_run(use_threading, image_limit):
 
 @pytest.mark.parametrize(
     'total_posts_default, get_total_posts_retval, need_save',
-    product([0], [0], [True, False])
+    product([0, 1], [0, 1], [True, False])
 )
 def test_get_imgs_using_threading(total_posts_default, get_total_posts_retval, need_save):
     """test method."""
@@ -160,6 +160,8 @@ def test_get_imgs_using_threading(total_posts_default, get_total_posts_retval, n
         # test
         assert obj.tag == obj.tags[0]
         assert obj.total_posts == 0
+        if total_posts_default or get_total_posts_retval:
+            obj._run_threads.assert_called_once_with()
         if get_total_posts_retval:
             obj._run_threads.assert_called_once_with()
         if need_save:
