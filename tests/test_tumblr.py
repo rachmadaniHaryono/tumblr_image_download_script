@@ -138,3 +138,47 @@ def test_run(use_threading, image_limit):
         obj_vars.pop('get_imgs_using_threading')
         obj_vars.pop('get_imgs')
         assert obj_vars == exp_obj_vars
+
+
+@pytest.mark.parametrize(
+    'total_posts_default, get_total_posts_retval, need_save',
+    product([0], [0], [True, False])
+)
+def test_get_imgs_using_threading(total_posts_default, get_total_posts_retval, need_save):
+    """test method."""
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None):
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blog=mock.Mock())
+        obj.need_save = need_save
+        obj.tags = [mock.Mock()]
+        obj.total_posts = total_posts_default
+        obj._get_total_posts = mock.Mock(return_value=get_total_posts_retval)
+        obj._process_img_queue = mock.Mock()
+        obj._run_threads = mock.Mock()
+        # run
+        obj.get_imgs_using_threading()
+        # test
+        assert obj.tag == obj.tags[0]
+        assert obj.total_posts == 0
+        if get_total_posts_retval:
+            obj._run_threads.assert_called_once_with()
+        if need_save:
+            obj._process_img_queue.assert_called_once_with([])
+
+
+def test_run_threads():
+    """test method."""
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.threading') as m_threading:
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blog=mock.Mock())
+        obj.threads_num = 1
+        obj._get_img_urls = mock.Mock()
+        # run
+        obj._run_threads()
+        # test
+        m_threading.assert_has_calls([
+            mock.call.Thread(target=obj._get_img_urls),
+            mock.call.Thread().start(),
+            mock.call.Thread().join()
+        ])
