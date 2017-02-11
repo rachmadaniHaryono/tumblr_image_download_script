@@ -182,3 +182,52 @@ def test_run_threads():
             mock.call.Thread().start(),
             mock.call.Thread().join()
         ])
+
+
+@pytest.mark.parametrize('is_img_queue_empty', [True, False])
+def test_process_img_queue(is_img_queue_empty):
+    """test method."""
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.threading') as m_threading:
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blog=mock.Mock())
+        obj.threads_num = 1
+        obj.img_queue = mock.Mock()
+        obj.img_queue.empty.return_value = is_img_queue_empty
+        obj._download_imgs = mock.Mock()
+        # run
+        obj._process_img_queue(consumer=[])
+        # test
+        if not is_img_queue_empty:
+            m_threading.assert_has_calls([
+                mock.call.Thread(target=obj._download_imgs),
+                mock.call.Thread().start()
+            ])
+
+
+@pytest.mark.parametrize(
+    'is_img_queue_empty, need_save, total_posts_default, get_total_posts_retval',
+    product([True, False], [True, False], [0, 1], [0, 1])
+)
+def test_get_imgs(is_img_queue_empty, need_save, total_posts_default, get_total_posts_retval):
+    """test method."""
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None):
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blog=mock.Mock())
+        obj.threads_num = 1
+        obj.tags = [mock.Mock()]
+        obj.total_posts = total_posts_default
+        obj.need_save = need_save
+        obj.img_queue = mock.Mock()
+        obj.img_queue.empty.return_value = is_img_queue_empty
+        obj._download_imgs = mock.Mock()
+        obj._get_img_urls = mock.Mock()
+        obj._get_total_posts = mock.Mock(return_value=get_total_posts_retval)
+        # run
+        obj.get_imgs()
+        # test
+        assert obj.total_posts == 0
+        if total_posts_default or get_total_posts_retval:
+            obj._get_img_urls.assert_called_once_with()
+        if need_save and not is_img_queue_empty:
+            obj._download_imgs.assert_called_once_with()
