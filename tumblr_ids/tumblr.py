@@ -167,10 +167,7 @@ class Tumblr(object):
             self._process_img_queue(consumer)
 
     def _check_already_exists(self, name):
-        if os.path.isfile(os.path.join(self.save_path, name)):
-            return True
-        else:
-            return False
+        return os.path.isfile(os.path.join(self.save_path, name))
 
     def _get_img_urls(self):
         """get image urls."""
