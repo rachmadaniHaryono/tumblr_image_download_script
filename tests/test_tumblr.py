@@ -233,3 +233,17 @@ def test_get_imgs(is_img_queue_empty, need_save, total_posts_default, get_total_
             obj._get_img_urls.assert_called_once_with()
         if need_save and not is_img_queue_empty:
             obj._download_imgs.assert_called_once_with()
+
+
+@pytest.mark.parametrize('isfile_retval', [True, False])
+def test_check_already_exists(isfile_retval):
+    """test method."""
+    name = mock.Mock()
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.os') as m_os:
+        from tumblr_ids.tumblr import Tumblr
+        m_os.path.isfile.return_value = isfile_retval
+        obj = Tumblr(blog=mock.Mock())
+        obj.save_path = mock.Mock()
+        res = obj._check_already_exists(name=name)
+        assert isfile_retval == res
