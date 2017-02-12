@@ -106,16 +106,24 @@ class Tumblr(object):
             print("Started blog rip not using Threads...\n")
             self.get_imgs()
 
-    def get_imgs(self):
-        """get img."""
+    def _process_tags(self, total_posts_func):
+        """process tags.
+
+        Args:
+            total_posts_func: Function to run when total posts valid.
+        """
         for tag in self.tags:
             self.tag = tag
             print("Tag: {}".format(self.tag))
             if not self.total_posts:
                 self.total_posts = self._get_total_posts()
             if self.total_posts:
-                self._get_img_urls()
+                total_posts_func()
             self.total_posts = 0
+
+    def get_imgs(self):
+        """get img."""
+        self._process_tags(total_posts_func=self._get_img_urls)
         if self.need_save and not self.img_queue.empty():
             self._download_imgs()
 
@@ -153,16 +161,7 @@ class Tumblr(object):
     def get_imgs_using_threading(self):
         """get imgs using threading."""
         consumer = []
-        for tag in self.tags:
-            self.tag = tag
-            print("Tag: {}".format(self.tag))
-            if not self.total_posts:
-                self.total_posts = self._get_total_posts()
-            if self.total_posts:
-                self._run_threads()
-            # reset total posts
-            self.total_posts = 0
-
+        self._process_tags(total_posts_func=self._run_threads)
         if self.need_save:
             self._process_img_queue(consumer)
 
