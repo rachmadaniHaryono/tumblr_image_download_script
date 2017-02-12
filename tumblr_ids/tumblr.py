@@ -289,27 +289,21 @@ class Tumblr(object):
         if not os.path.isdir(path):
             os.makedirs(path)
 
+    def _set_default_save_path(self, *args):
+        """set default path"""
+        path = os.path.join(*args)
+        self._create_dir_if_not_exists(path=path)
+        self.save_path = path
+
     def _check_save_path(self):
         """check save path."""
-        if not self.save_path:
-            path = os.path.join(os.getcwd(), "imgs/", self.blog)
-            self._create_dir_if_not_exists(path=path)
-            self.save_path = path
+        if not self.save_path or self.save_path is None:
+            self._set_default_save_path(os.getcwd(), "imgs/", self.blog)
             return
-        if self.save_path.startswith('/') and not os.path.isdir(self.save_path):
-            try:
-                os.makedirs(self.save_path)
-            except Exception as e:  # pragma: no cover
-                print(e)
-                sys.exit(1)
-        elif self.save_path.startswith('/') and not os.access(self.save_path, os.R_OK | os.W_OK):
-            """ 检测有无读写权限 """
-            print("invalid save_path {0}".format(self.save_path))
-            sys.exit(1)
+        if self.save_path.startswith('/'):
+            self._create_dir_if_not_exists(self.save_path)
         else:
-            path = os.path.join(os.getcwd(), "imgs/", self.save_path)
-            self._create_dir_if_not_exists(path=path)
-            self.save_path = path
+            self._set_default_save_path(os.getcwd(), "imgs/", self.save_path)
 
     def __str__(self):
         """str repr."""
