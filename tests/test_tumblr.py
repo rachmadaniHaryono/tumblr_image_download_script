@@ -340,3 +340,120 @@ def test_check_limit(image_limit, image_counter):
             assert res
     else:
         assert not res
+
+
+@pytest.mark.parametrize(
+    'need_save, path_exists_retval, tags',
+    product(
+        [True, False],
+        [True, False],
+        [None, mock.Mock()]
+    )
+)
+def test_download_imgs(need_save, path_exists_retval, tags):
+    """test method."""
+    img_url = mock.Mock()
+    img_name = mock.Mock()
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.utils') as m_utils, \
+            mock.patch('tumblr_ids.tumblr.os') as m_os, \
+            mock.patch('tumblr_ids.tumblr.get_filename', return_value=img_name):
+        m_os.path.exists.return_value = path_exists_retval
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blogs=mock.Mock())
+        obj.tags = tags
+        obj.save_path = mock.Mock()
+        obj.proxies = mock.Mock()
+        obj.stream = mock.Mock()
+        obj.timeout = mock.Mock()
+        obj.img_queue = mock.Mock()
+        obj.img_queue.empty.side_effect = [False, True]
+        obj.img_queue.get.return_value = img_url
+        obj.post_queue = mock.Mock()
+        obj.post_queue.empty.side_effect = [False, True]
+        obj.need_save = need_save
+        # run
+        obj._download_imgs()
+        if not need_save:
+            return
+        if not (tags and path_exists_retval):
+            m_utils.download_imgs.assert_called_once_with(
+                img_url, obj.save_path, img_name, obj.proxies, stream=obj.stream,
+                timeout=obj.timeout
+            )
+        else:
+            m_utils.download_imgs.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    'total_posts_from_data, max_posts, limit_start, data',
+    product(
+        [0, 1, '0', '1'],
+        [None, 0, 1],
+        [0, 1],
+        [None, mock.Mock()]
+    )
+)
+def test_get_total_posts(total_posts_from_data, max_posts, limit_start, data):
+    """test method"""
+    default_total_posts = 0
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.utils') as m_utils:
+        m_utils.download_page.return_value = data
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blogs=mock.Mock())
+        obj.total_post_re = mock.Mock()
+        obj.total_post_re.findall.return_value = [total_posts_from_data]
+        obj.max_posts = max_posts
+        obj.limit_start = limit_start
+        obj.post_queue = mock.Mock()
+        obj.base_url = mock.Mock()
+        obj.tag = mock.Mock()
+        obj.num = 1
+        obj.total_posts = default_total_posts
+        # run
+        res = obj._get_total_posts()
+        if not data:
+            assert res == default_total_posts
+        elif not max_posts:
+            assert res == int(total_posts_from_data)
+            if limit_start < res:
+                obj.post_queue.put.called_once_with(obj.limit_start)
+            else:
+                obj.post_queue.put.assert_not_called()
+        elif max_posts:
+            assert res == min(int(total_posts_from_data), max_posts)
+            if limit_start < res:
+                obj.post_queue.put.called_once_with(obj.limit_start)
+            else:
+                obj.post_queue.put.assert_not_called()
+        else:
+            raise NotImplementedError
+
+
+@pytest.mark.parametrize('isdir_retval', [True, False])
+def test_create_dir_if_not_exists(isdir_retval):
+    """test method."""
+    path = mock.Mock()
+    with mock.patch('tumblr_ids.tumblr.os') as m_os:
+        m_os.path.isdir.return_value = isdir_retval
+        from tumblr_ids.tumblr import Tumblr
+        Tumblr._create_dir_if_not_exists(path)
+        if not isdir_retval:
+            m_os.makedirs.assert_called_once_with(path)
+
+
+def test_str():
+    """test method."""
+    txt_fmt = "{0} has {1} posts, left {2} json to parse, left {3} imgs to download"
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None):
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blogs=mock.Mock())
+        obj.total_posts = mock.Mock()
+        obj.blog = mock.Mock()
+        obj.post_queue = mock.Mock()
+        obj.img_queue = mock.Mock()
+        assert str(obj) == txt_fmt.format(
+            obj.blog, obj.total_posts, obj.post_queue.qsize.return_value,
+            obj.img_queue.qsize.return_value
+        )
