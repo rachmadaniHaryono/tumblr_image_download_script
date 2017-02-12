@@ -328,3 +328,15 @@ def test_process_images(filename_exists, is_limit_reached, need_save, image_limi
         # test
         if need_save and not(filename_exists or exp_res['is_limit_reached']):
             obj.img_queue.put.assert_called_once_with(images[0])
+
+
+@pytest.mark.parametrize('image_limit, image_counter', product([None, 1], [0, 1]))
+def test_check_limit(image_limit, image_counter):
+    """test method."""
+    from tumblr_ids.tumblr import Tumblr
+    res = Tumblr._check_limit(image_limit, image_counter)
+    if image_limit is not None:
+        if image_limit <= image_counter:
+            assert res
+    else:
+        assert not res
