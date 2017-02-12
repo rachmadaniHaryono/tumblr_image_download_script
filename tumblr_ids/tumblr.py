@@ -126,6 +126,23 @@ class Tumblr(object):
         if self.need_save and not self.img_queue.empty():
             self._download_imgs()
 
+    @staticmethod
+    def _extend_thread_list(input_list, threads_num, target_func):
+        """extend thread list.
+
+        Args:
+            input_list (list): List of threads.
+            threads_num (int): Number of threads to create.
+            target_func (function): Function to run in threads.
+
+        Returns:
+            list: Modified input list.
+        """
+        for _ in range(0, threads_num):
+            item = threading.Thread(target=target_func)
+            input_list.append(item)
+        return input_list
+
     def _process_img_queue(self, consumer):
         """process image queue.
 
@@ -133,9 +150,11 @@ class Tumblr(object):
         """
         while True:
             if not self.img_queue.empty():
-                for i in range(0, self.threads_num):
-                    c = threading.Thread(target=self._download_imgs)
-                    consumer.append(c)
+                consumer = self._extend_thread_list(
+                    input_list=consumer,
+                    threads_num=self.threads_num,
+                    target_func=self._download_imgs
+                )
 
                 for i in range(0, self.threads_num):
                     consumer[i].start()
@@ -149,9 +168,11 @@ class Tumblr(object):
         helper function when getting images using threading.
         """
         producer = []
-        for _ in range(0, self.threads_num):
-            p = threading.Thread(target=self._get_img_urls)
-            producer.append(p)
+        producer = self._extend_thread_list(
+            input_list=producer,
+            threads_num=self.threads_num,
+            target_func=self._get_img_urls
+        )
         for i in range(0, self.threads_num):
             producer[i].start()
         for i in range(0, self.threads_num):
