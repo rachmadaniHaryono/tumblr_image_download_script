@@ -283,30 +283,33 @@ class Tumblr(object):
             limit_start += self.num
         return self.total_posts
 
+    @staticmethod
+    def _create_dir_if_not_exists(path):
+        """create dir if not exists"""
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
     def _check_save_path(self):
+        """check save path."""
         if not self.save_path:
             path = os.path.join(os.getcwd(), "imgs/", self.blog)
-            if not os.path.isdir(path):
-                os.makedirs(path)
+            self._create_dir_if_not_exists(path=path)
             self.save_path = path
+            return
+        if self.save_path.startswith('/') and not os.path.isdir(self.save_path):
+            try:
+                os.makedirs(self.save_path)
+            except Exception as e:  # pragma: no cover
+                print(e)
+                sys.exit(1)
+        elif self.save_path.startswith('/') and not os.access(self.save_path, os.R_OK | os.W_OK):
+            """ 检测有无读写权限 """
+            print("invalid save_path {0}".format(self.save_path))
+            sys.exit(1)
         else:
-            if self.save_path.startswith('/'):
-                if not os.path.isdir(self.save_path):
-                    try:
-                        os.makedirs(self.save_path)
-                    except Exception as e:
-                        print(e)
-                        sys.exit(1)
-                else:
-                    """ 检测有无读写权限 """
-                    if not os.access(self.save_path, os.R_OK | os.W_OK):
-                        print("invalid save_path {0}".format(self.save_path))
-                        sys.exit(1)
-            else:
-                path = os.path.join(os.getcwd(), "imgs/", self.save_path)
-                if not os.path.isdir(path):
-                    os.makedirs(path)
-                self.save_path = path
+            path = os.path.join(os.getcwd(), "imgs/", self.save_path)
+            self._create_dir_if_not_exists(path=path)
+            self.save_path = path
 
     def __str__(self):
         """str repr."""
