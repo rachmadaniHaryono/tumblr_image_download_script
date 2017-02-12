@@ -209,8 +209,8 @@ class Tumblr(object):
 
         return is_limit_reached
 
-    def _process_images(self, images, image_counter, is_limit_reached):
-        """process images.
+    def _process_images_without_save(self, images, image_counter, is_limit_reached):
+        """process images without saving them..
 
         Result is a dict with following keys:
         - is_limit_reached (bool): Return True if limit is reached.
@@ -227,22 +227,50 @@ class Tumblr(object):
 
         for img in imgs:
             img = img.replace('\\', '')
-            filename = get_filename(img)
-            if not self.need_save:
-                self.imglog.info("%s" % img)
-            else:
-                is_limit_reached = self._check_limit(
-                    image_limit=self.image_limit, image_counter=image_counter)
+            self.imglog.info("%s" % img)
 
-                # pre process url before put it in queue
-                if self._check_already_exists(filename):
-                    print("Skipping:\t{}".format(filename))
-                elif is_limit_reached:
-                    print("Hit limit, skipping;\t{}".format(filename))
-                else:
-                    print("Queued:\t{}".format(filename))
-                    self.img_queue.put(img)
-                    image_counter += 1
+            # stop the for-loop if limit reached.
+            if is_limit_reached:
+                break
+        return {
+            'is_limit_reached': is_limit_reached,
+            'image_counter': image_counter,
+        }
+
+    def _process_images(self, images, image_counter, is_limit_reached):
+        """process images.
+
+        Result is a dict with following keys:
+        - is_limit_reached (bool): Return True if limit is reached.
+        - image_counter (bool): Image counter for image which put on image queue.
+
+        Args:
+            images (list): list of image urls.
+
+        Returns:
+            dict: Result of the process
+        """
+        # compatibility
+        imgs = images
+
+        if not self.need_save:
+            return self._process_images_without_save(images, image_counter, is_limit_reached)
+
+        for img in imgs:
+            img = img.replace('\\', '')
+            filename = get_filename(img)
+            is_limit_reached = self._check_limit(
+                image_limit=self.image_limit, image_counter=image_counter)
+
+            # pre process url before put it in queue
+            if self._check_already_exists(filename):
+                print("Skipping:\t{}".format(filename))
+            elif is_limit_reached:
+                print("Hit limit, skipping;\t{}".format(filename))
+            else:
+                print("Queued:\t{}".format(filename))
+                self.img_queue.put(img)
+                image_counter += 1
 
             # stop the for-loop if limit reached.
             if is_limit_reached:
