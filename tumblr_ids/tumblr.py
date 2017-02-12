@@ -236,6 +236,32 @@ class Tumblr(object):
             'image_counter': image_counter,
         }
 
+    def _process_single_image(self, image, filename, image_counter, is_limit_reached):
+        """process single image.
+
+        Args:
+            image: Image obj.
+            filename: Image filename.
+            image_counter (int): Image counter.
+            is_limit_reached (bool): State if limit is reached.
+
+        Returns:
+            int: Modified image counter.
+        """
+        # compatibility
+        img = image
+
+        # pre process url before put it in queue
+        if self._check_already_exists(filename):
+            print("Skipping:\t{}".format(filename))
+        elif is_limit_reached:
+            print("Hit limit, skipping;\t{}".format(filename))
+        else:
+            print("Queued:\t{}".format(filename))
+            self.img_queue.put(img)
+            image_counter += 1
+        return image_counter
+
     def _process_images(self, images, image_counter, is_limit_reached):
         """process images.
 
@@ -261,16 +287,10 @@ class Tumblr(object):
             is_limit_reached = self._check_limit(
                 image_limit=self.image_limit, image_counter=image_counter)
 
-            # pre process url before put it in queue
-            if self._check_already_exists(filename):
-                print("Skipping:\t{}".format(filename))
-            elif is_limit_reached:
-                print("Hit limit, skipping;\t{}".format(filename))
-            else:
-                print("Queued:\t{}".format(filename))
-                self.img_queue.put(img)
-                image_counter += 1
-
+            image_counter = self._process_single_image(
+                image=img, filename=filename, image_counter=image_counter,
+                is_limit_reached=is_limit_reached
+            )
             # stop the for-loop if limit reached.
             if is_limit_reached:
                 break
