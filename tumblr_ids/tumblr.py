@@ -265,16 +265,22 @@ class Tumblr(object):
                     )
 
     def _get_total_posts(self):
-        url = self.base_url + "0&num=1&tagged=" + self.tag
+        """get total posts.
+
+        Returns:
+            int: Return total posts.
+        """
+        url = "{}0&num=1&tagged={}".format(self.base_url, self.tag)
         data = utils.download_page(url)
-        if data:
-            self.total_posts = int(self.total_post_re.findall(data)[0])
-            if self.max_posts:
-                self.total_posts = min(self.total_posts, self.max_posts)
-            limit_start = self.limit_start
-            while limit_start < self.total_posts:
-                self.post_queue.put(limit_start)
-                limit_start += self.num
+        if not data:
+            return self.total_posts
+        self.total_posts = int(self.total_post_re.findall(data)[0])
+        if self.max_posts:
+            self.total_posts = min(self.total_posts, self.max_posts)
+        limit_start = self.limit_start
+        while limit_start < self.total_posts:
+            self.post_queue.put(limit_start)
+            limit_start += self.num
         return self.total_posts
 
     def _check_save_path(self):
