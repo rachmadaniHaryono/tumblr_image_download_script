@@ -189,6 +189,26 @@ class Tumblr(object):
                 is_limit_reached = res['is_limit_reached']
                 image_counter = res['image_counter']
 
+    @staticmethod
+    def _check_limit(image_limit, image_counter):
+        """check limit.
+
+        Args:
+            image_limit (int): Image limit.
+            image_counter (int): Image counter.
+
+        Returns:
+            bool: Return True if condition is fulfilled and image counter equal or bigger than
+            image limit.
+        """
+        is_limit_reached = False
+        # check if limit reached
+        if image_limit is not None:
+            if image_limit <= image_counter:
+                is_limit_reached = True
+
+        return is_limit_reached
+
     def _process_images(self, images, image_counter, is_limit_reached):
         """process images.
 
@@ -211,12 +231,8 @@ class Tumblr(object):
             if not self.need_save:
                 self.imglog.info("%s" % img)
             else:
-                # check if limit reached
-                if self.image_limit is not None:
-                    if self.image_limit <= image_counter:
-                        is_limit_reached = True
-                else:
-                    is_limit_reached = False
+                is_limit_reached = self._check_limit(
+                    image_limit=self.image_limit, image_counter=image_counter)
 
                 # pre process url before put it in queue
                 if self._check_already_exists(filename):
