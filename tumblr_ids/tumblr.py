@@ -19,7 +19,6 @@ tumblr.py.
 # -*-coding:utf-8-*-
 import os
 import re
-import sys
 import threading
 try:
     from queue import Queue  # py3
