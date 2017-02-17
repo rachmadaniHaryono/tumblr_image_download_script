@@ -10,10 +10,10 @@ import time
 from .mylogger import get_logger
 dllog = get_logger(time.strftime("%d-%m-%Y+%H-%M-%S"))
 
-try:
+try:  # pragma: no cover
     reload(sys)
     sys.setdefaultencoding('utf-8')
-except NameError:
+except NameError:  # pragma: no cover
     # The only supported default encodings in Python are:
 
     #  Python 2.x: ASCII
@@ -60,12 +60,3 @@ def download_imgs(url, path, name, proxies=None, stream=True, timeout=10):
                 f.write(chunk)
     except Exception as e:
         dllog.info("下载失败(Download Failed), %s %s" % (url, e))
-
-
-def test():
-    """test func."""
-    pass
-
-
-if __name__ == "__main__":
-    test()
