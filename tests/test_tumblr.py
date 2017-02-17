@@ -488,3 +488,16 @@ def test_check_save_path(save_path):
             obj._set_default_save_path.assert_called_once_with(
                 m_os.getcwd.return_value, "imgs/", obj.save_path)
             pass
+
+
+def test_set_default_save_path():
+    dirname = mock.Mock()
+    basename = mock.Mock()
+    with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None), \
+            mock.patch('tumblr_ids.tumblr.os') as m_os:
+        from tumblr_ids.tumblr import Tumblr
+        obj = Tumblr(blogs=mock.Mock())
+        obj._create_dir_if_not_exists
+        obj._set_default_save_path(dirname, basename)
+        assert obj.save_path == m_os.path.join.return_value
+        m_os.path.join.assert_called_once_with(dirname, basename)
