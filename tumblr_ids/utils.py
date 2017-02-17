@@ -43,7 +43,7 @@ def download_page(url, ret_json=False, proxies=None):
         else:
             dllog.info("下载失败(Download Failed)，status_code: %s" % r.status_code)
             return ''
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         dllog.info("下载失败 Download Failed), %s %s" % (url, e))
         return ''
 
@@ -53,10 +53,10 @@ def download_imgs(url, path, name, proxies=None, stream=True, timeout=10):
     try:
         dllog.info("当前下载的(Current Download) url: %s " % url)
         r = requests.get(url, stream=stream, proxies=proxies, timeout=timeout)
-        file = os.path.join(path, name)
-        print("Downloading:\t" + name)
-        with open(file, 'wb') as f:
+        file_ = os.path.join(path, name)
+        print("Downloading:\t{}".format(name))
+        with open(file_, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 f.write(chunk)
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         dllog.info("下载失败(Download Failed), %s %s" % (url, e))
