@@ -93,9 +93,9 @@ def test_init(total_post_re, img_re, save_path, need_save):
         kwargs['need_save'] = need_save
     if save_path is not None:
         kwargs['save_path'] = save_path
-    with mock.patch('tumblr_ids.tumblr.get_logger') as m_get_logger:
+    with mock.patch('tumblr_ids.tumblr.get_logger') as m_get_logger, \
+            mock.patch('tumblr_ids.tumblr.Tumblr._check_save_path'):
         from tumblr_ids.tumblr import Tumblr
-        Tumblr._check_save_path = mock.Mock()
         if not(need_save is None or need_save):
             default_attr['imglog'] = m_get_logger.return_value
         obj = Tumblr(**kwargs)
