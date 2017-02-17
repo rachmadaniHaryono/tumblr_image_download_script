@@ -22,7 +22,7 @@ import re
 import threading
 try:
     from queue import Queue  # py3
-except ImportError:
+except ImportError:  # pragma: no cover
     from Queue import Queue  # py2
 
 from . import utils
