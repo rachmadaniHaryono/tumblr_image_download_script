@@ -33,15 +33,24 @@ def format_tumblr_input(user):
     return user, tags
 
 
-def readblogs(filename):
-    """read blog from filename."""
+def process_file(file_obj):
+    """process file.
+
+    key for return vars:
+    - blogs: Formatted blog.
+    - count: Skipped line/user.
+
+    Args:
+        file_obj: File object to be processed.
+
+    Returns:
+        dict: Processing result.
+    """
+    # compatibility
+    f = file_obj
+
     blogs = []
     count = 0
-    try:
-        f = open(filename, 'r')
-    except OSError:  # alternative to FileNotFoundError
-        return blogs
-    print("Reading " + filename + "...")
     for user in f:
         if not len(user) < 2:
             if user[0] == '#':
@@ -51,6 +60,26 @@ def readblogs(filename):
             else:
                 user, tags = format_tumblr_input(user)
                 blogs.append(Tumblr(user, tags=tags))
+    return {
+        'blogs': blogs,
+        'count': count
+    }
+
+
+def readblogs(filename):
+    """read blog from filename."""
+    blogs = []
+    count = 0
+    try:
+        f = open(filename, 'r')
+    except OSError:  # alternative to FileNotFoundError
+        return blogs
+    print("Reading " + filename + "...")
+
+    res = process_file(file_obj=f)
+    blogs = res['blogs']
+    count = res['count']
+
     if count > 0:
         print("Skipped " + str(count) + " lines/users in " + filename + "\n")
     return blogs
