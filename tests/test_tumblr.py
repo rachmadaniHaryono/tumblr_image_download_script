@@ -443,13 +443,15 @@ def test_create_dir_if_not_exists(isdir_retval):
             m_os.makedirs.assert_called_once_with(path)
 
 
-def test_str():
+@pytest.mark.parametrize('total_posts', [None, mock.Mock()])
+def test_str(total_posts):
     """test method."""
     txt_fmt = "{0} has {1} posts, left {2} json to parse, left {3} imgs to download"
     with mock.patch('tumblr_ids.tumblr.Tumblr.__init__', return_value=None):
         from tumblr_ids.tumblr import Tumblr
         obj = Tumblr(blogs=mock.Mock())
-        obj.total_posts = mock.Mock()
+        obj.total_posts = total_posts
+        obj._get_total_posts = mock.Mock()
         obj.blog = mock.Mock()
         obj.post_queue = mock.Mock()
         obj.img_queue = mock.Mock()
