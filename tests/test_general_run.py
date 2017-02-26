@@ -124,7 +124,7 @@ def test_run(noinfo, stream, threading, tumblr_input, readblogs_retval):
             m_write_example.assert_called_once_with()
             return
         if not noinfo:
-            m_print_info.assert_called_once_with()
+            len(m_print_info.mock_calls) == 1
         if tumblr_input is not None:
             blog.run.assert_called_once_with(
                 image_limit=image_limit, proxies=proxy, stream=stream, timeout=timeout,
@@ -243,7 +243,7 @@ def test_main():
         from tumblr_ids.general_run import main
         main(argv)
         m_run.assert_called_once_with(
-            args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxies,
+            args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxy,
             image_limit=args.limit, tumblr_input=args.tumblr_input
         )
 
