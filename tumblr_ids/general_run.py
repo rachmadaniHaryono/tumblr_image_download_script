@@ -199,7 +199,7 @@ def run(noinfo, stream, threading, timeout, filename, proxy, image_limit=None, t
 
     # process input
     if not noinfo:
-        print_info()
+        print_info(blogs, stream, threading, timeout)
     print("Running...\n")
     start = time.time()
     list(map(
@@ -301,7 +301,7 @@ def main(argv):
     args = get_args(argv)
 
     run(
-        args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxies,
+        args.noinfo, args.stream, args.threading, args.timeout, args.filename, args.proxy,
         image_limit=args.limit, tumblr_input=args.tumblr_input
     )
 
