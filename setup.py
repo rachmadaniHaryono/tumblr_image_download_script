@@ -12,7 +12,7 @@ setup(
     author_email='jrh@example.com',
     scripts=['bin/tumblr-ids'],
     entry_points={
-        'console_scripts': ['tumblr-ids=tumblr_ids.general_run:main'],
+        'console_scripts': ['tumblr-ids=tumblr_ids.__main__'],
     },
     url='https://github.com/Bakkingamu/tumblr_image_download_script',
     license='LICENSE.txt',
