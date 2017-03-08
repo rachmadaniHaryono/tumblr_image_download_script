@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import sys
+
+from tumblr_ids.general_run import main
+main(sys.argv[1:])
