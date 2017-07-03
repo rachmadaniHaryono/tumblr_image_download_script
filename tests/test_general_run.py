@@ -49,7 +49,7 @@ def test_readblogs(blogs_file):
     'user, exp_res',
     [
         ('lazy-artist\n', ('lazy-artist', [''])),
-        ('lazy-artist.tumblr.com', ('lazy-artist', [''])),
+        ('lazy-artist.tumblr.com', ('lazy-artist.tumblr.com', [''])),
         ('http://cool-artist.tumblr.com/\n', ('cool-artist', [''])),
         (
             'http://reblogging-artist.tumblr.com/;;original-post,cute\n',
