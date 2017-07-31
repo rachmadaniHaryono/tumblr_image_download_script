@@ -1,8 +1,4 @@
 ## Tumblr Image Download Script
-[![Build Status](https://travis-ci.org/rachmadaniHaryono/tumblr_image_download_script.svg?branch=master)](https://travis-ci.org/rachmadaniHaryono/tumblr_image_download_script)
-[![codecov](https://codecov.io/gh/rachmadaniHaryono/tumblr_image_download_script/branch/master/graph/badge.svg)](https://codecov.io/gh/rachmadaniHaryono/tumblr_image_download_script)
-[![Code Climate](https://codeclimate.com/github/rachmadaniHaryono/tumblr_image_download_script/badges/gpa.svg)](https://codeclimate.com/github/rachmadaniHaryono/tumblr_image_download_script)
-
 #### Description
 This is a fork of [leyle's tumblr_imgs_download](https://github.com/leyle/tumblr_imgs_download)
 for python3 that allows for a list of blogs to be specified in a text file
